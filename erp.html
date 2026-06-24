@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shri Chamunda School - ERP System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#567C8D',      // Teal
+                        primaryDark: '#2F4156',  // Navy
+                        navy: '#2F4156',
+                        navyLight: '#475B70',
+                        cream: '#F5EFEB',
+                        softGray: '#F9FAFB',
+                        accent: {
+                            blue: '#C8D9E6',
+                            green: '#22C55E',
+                            yellow: '#F59E0B'
+                        },
+                        red: {
+                            50: '#F5EFEB',
+                            100: '#C8D9E6',
+                            200: '#C8D9E6',
+                            500: '#567C8D',
+                            600: '#567C8D',
+                            700: '#567C8D',
+                        }
+                    },
+                    fontFamily: {
+                        display: ['Poppins', 'sans-serif'],
+                        sans: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            --primary: #567C8D;
+            --navy: #2F4156;
+            --cream: #F5EFEB;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #F9FAFB;
+            color: var(--navy);
+        }
+
+        .pattern-bg {
+            background-image: radial-gradient(circle at 1px 1px, rgba(47, 65, 86, 0.02) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(47, 65, 86, 0.05), 0 2px 8px -2px rgba(47, 65, 86, 0.03);
+        }
+
+        .card-hover {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px -4px rgba(47, 65, 86, 0.1), 0 4px 12px -4px rgba(47, 65, 86, 0.04);
+        }
+        
+        * {
+            scroll-behavior: smooth;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .animate-slideInLeft {
+            animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Pulse glow animation for System Online */
+        .online-pulse {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+    </style>
+</head>
+<body class="pattern-bg min-h-screen text-navy antialiased">
+    <!-- Main App Container -->
+    <div id="erp-app" class="flex flex-col min-h-screen">
+        <!-- Loader Splash -->
+        <div class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <div class="relative w-16 h-16 mb-4 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-full border-4 border-primary/10"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-t-primary border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+                <span class="font-bold text-base tracking-wider text-primary">SC</span>
+            </div>
+            <p class="text-xs font-semibold tracking-wider text-navyLight/60 animate-pulse uppercase">Connecting To ERP Gateway...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] space-y-2 pointer-events-none"></div>
+
+    <!-- Global Core Script -->
+    <script>
+        // System State
+        const state = {
+            currentPage: 'overview',
+            sidebarOpen: false,
+            showNotificationsDropdown: false,
+            showProfileDropdown: false,
+            
+            // Search query states
+            staffSearchQuery: '',
+            studentSearchQuery: '',
+            feeSearchQuery: '',
+            
+            // Tab filters
+            activeStaffTab: 'all',
+            activeStudentTab: 'all',
+            
+            // Notification list
+            notifications: [
+                { id: 1, message: 'New admission application received for Aarav Mehta (Class VI)', time: '2 hours ago' },
+                { id: 2, message: 'Monthly tuition fees collection rate reached 72%', time: '1 day ago' },
+                { id: 3, message: 'Transport Route 2 vehicle maintenance update logged', time: '3 days ago' }
+            ],
+            
+            // Dynamic collections
+            staffList: [
+                { id: 'STF-01', name: 'Babita Devi', designation: 'TGT Hindi', email: 'babita@chamundaviewschool.edu.in', phone: '+91 98160 12345', joiningDate: '2020-07-15', status: 'Active', category: 'teaching' },
+                { id: 'STF-02', name: 'Deepika', designation: 'TGT Science', email: 'deepika@chamundaviewschool.edu.in', phone: '+91 98160 23456', joiningDate: '2021-04-10', status: 'Active', category: 'teaching' },
+                { id: 'STF-03', name: 'Manu', designation: 'TGT Math', email: 'manu@chamundaviewschool.edu.in', phone: '+91 98160 34567', joiningDate: '2019-11-01', status: 'Active', category: 'teaching' },
+                { id: 'STF-04', name: 'Mohinder', designation: 'TGT English', email: 'mohinder@chamundaviewschool.edu.in', phone: '+91 98160 45678', joiningDate: '2018-02-18', status: 'Active', category: 'teaching' },
+                { id: 'STF-05', name: 'Chetan', designation: 'IT Admin & Principal', email: 'chetan@chamundaviewschool.edu.in', phone: '+91 98160 56789', joiningDate: '2015-05-20', status: 'Active', category: 'admin' }
+            ],
+            
+            studentList: [
+                { rollNo: 'SCH-201', name: 'Amit Sharma', className: 'Class X', parent: 'Rakesh Sharma', phone: '+91 98765 43210', status: 'Active', feeStatus: 'Paid' },
+                { rollNo: 'SCH-202', name: 'Kabir Singh', className: 'Class II', parent: 'Amit Singh', phone: '+91 98765 43212', status: 'Active', feeStatus: 'Pending' },
+                { rollNo: 'SCH-203', name: 'Ishita Sharma', className: 'Class IX', parent: 'Neha Sharma', phone: '+91 98765 43211', status: 'Active', feeStatus: 'Pending' },
+                { rollNo: 'SCH-204', name: 'Priya Verma', className: 'Class X', parent: 'Vijay Verma', phone: '+91 98123 09876', status: 'Active', feeStatus: 'Paid' },
+                { rollNo: 'SCH-205', name: 'Rahul Gupta', className: 'Class VIII', parent: 'Sanjay Gupta', phone: '+91 98765 43214', status: 'Active', feeStatus: 'Pending' },
+                { rollNo: 'SCH-206', name: 'Sneha Jain', className: 'Class VI', parent: 'Ritu Jain', phone: '+91 98765 43213', status: 'Active', feeStatus: 'Pending' }
+            ],
+            
+            feeTransactions: [
+                { txId: 'TXN-9021', studentName: 'Amit Sharma', className: 'Class X', amount: 2200, date: '2026-06-20', method: 'UPI' },
+                { txId: 'TXN-9020', studentName: 'Priya Verma', className: 'Class X', amount: 2200, date: '2026-06-19', method: 'Cash' },
+                { txId: 'TXN-9019', studentName: 'Kabir Singh', className: 'Class II', amount: 2200, date: '2026-05-18', method: 'Net Banking' }
+            ],
+            
+            transportRoutes: [
+                { id: 'R-01', routeName: 'Route 1: Dadh - Kangra Express', stops: ['Dadh', 'Chamunda', 'Kangra Bypass', 'Kangra Town'], driverName: 'Satish Kumar', driverPhone: '+91 94180 11111', vehicleNo: 'HP-40-A-1234', studentCount: 15, status: 'Active' },
+                { id: 'R-02', routeName: 'Route 2: Dharamshala Connect', stops: ['Dadh', 'Yol Cantt', 'Dharamshala Cantt', 'Main Bus Stand'], driverName: 'Ramesh Chand', driverPhone: '+91 94180 22222', vehicleNo: 'HP-40-A-5678', studentCount: 22, status: 'Active' },
+                { id: 'R-03', routeName: 'Route 3: Chamunda Local Line', stops: ['Chamunda Temple', 'Dadh Crossing', 'Malan'], driverName: 'Karan Singh', driverPhone: '+91 94180 33333', vehicleNo: 'HP-40-B-9012', studentCount: 8, status: 'Active' }
+            ],
+            
+            applications: [
+                { id: 'APP-1024', student: 'Aarav Mehta', className: 'Class VI', parent: 'Rohit Mehta', phone: '+91 98765 43210', status: 'New', date: '2024-01-18' },
+                { id: 'APP-1023', student: 'Ishita Sharma', className: 'Class IX', parent: 'Neha Sharma', phone: '+91 98765 43211', status: 'Review', date: '2024-01-17' },
+                { id: 'APP-1022', student: 'Kabir Singh', className: 'Class II', parent: 'Amit Singh', phone: '+91 98765 43212', status: 'Approved', date: '2024-01-16' }
+            ],
+            
+            pendingFeesCount: 11, 
+            feesCollected: 18600, 
+            
+            selectedPaymentStudent: null,
+            showAddStaffModal: false,
+            showAddStudentModal: false,
+            showRecordPaymentModal: false
+        };
+
+        // Custom SVGs
+        function ERPIcon(type) {
+            const icons = {
+                overview: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/></svg>`,
+                students: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222m4 9.722v-7.5l-4-2.222"/></svg>`,
+                fees: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+                transport: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 16v3a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H7v1a1 1 0 01-1 1H5a1 1 0 01-1-1v-3m15-4v4m0-4a2 2 0 00-2-2H7a2 2 0 00-2 2v4m14-4V7a3 3 0 00-3-3H8a3 3 0 00-3 3v5h14zM9 9h1m4 0h1m-7 4h10"/></svg>`,
+                staff: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m8-4.13a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`,
+                admissions: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5l7 7v9a2 2 0 01-2 2z"/></svg>`,
+                settings: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.89 3.31.877 2.42 2.42a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.89 1.543-.877 3.31-2.42 2.42a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.89-3.31-.877-2.42-2.42a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.89-1.543.877-3.31 2.42-2.42.996.575 2.247.03 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`
+            };
+            return icons[type] || '';
+        }
+
+        // Navigation Sidebar Links
+        const erpLinks = [
+            { id: 'overview', label: 'Overview', icon: 'overview' },
+            { id: 'students', label: 'Student Management', icon: 'students' },
+            { id: 'fees', label: 'Fee Management', icon: 'fees' },
+            { id: 'transport', label: 'Transport', icon: 'transport' },
+            { id: 'staff', label: 'Staff & HR', icon: 'staff' },
+            { id: 'admissions', label: 'Admissions', icon: 'admissions' },
+            { id: 'settings', label: 'Settings', icon: 'settings' }
+        ];
+
+        // Toast Handler
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-2xl shadow-xl flex items-center gap-3 text-xs font-bold border pointer-events-auto animate-fadeIn ${
+                type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'
+            }`;
+            
+            const icon = type === 'success' 
+                ? `<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`
+                : `<svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>`;
+                
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                toast.style.transition = 'opacity 0.4s ease-out';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // Event Listeners and Triggers
+        function navigateERP(page) {
+            state.currentPage = page;
+            state.sidebarOpen = false;
+            state.showNotificationsDropdown = false;
+            state.showProfileDropdown = false;
+            window.scrollTo(0, 0);
+            renderERP();
+        }
+
+        function toggleMobileSidebar() {
+            state.sidebarOpen = !state.sidebarOpen;
+            renderERP();
+        }
+
+        function toggleNotificationsDropdown() {
+            state.showNotificationsDropdown = !state.showNotificationsDropdown;
+            state.showProfileDropdown = false;
+            renderERP();
+        }
+
+        function toggleProfileDropdown() {
+            state.showProfileDropdown = !state.showProfileDropdown;
+            state.showNotificationsDropdown = false;
+            renderERP();
+        }
+
+        function clearNotifications() {
+            state.notifications = [];
+            showToast('All notifications cleared');
+            renderERP();
+        }
+
+        function setStaffTab(tab) {
+            state.activeStaffTab = tab;
+            renderERP();
+        }
+
+        function searchStaff(val) {
+            state.staffSearchQuery = val;
+            renderERP();
+        }
+
+        function setStudentTab(tab) {
+            state.activeStudentTab = tab;
+            renderERP();
+        }
+
+        function searchStudents(val) {
+            state.studentSearchQuery = val;
+            renderERP();
+        }
+
+        // Search in fees
+        function searchFees(val) {
+            state.feeSearchQuery = val;
+            renderERP();
+        }
+
+        // Add/Remove Staff
+        function openAddStaffModal() {
+            state.showAddStaffModal = true;
+            renderERP();
+            document.getElementById('staff-date-input').valueAsDate = new Date();
+        }
+
+        function closeAddStaffModal() {
+            state.showAddStaffModal = false;
+            renderERP();
+        }
+
+        function submitAddStaff(e) {
+            e.preventDefault();
+            const name = document.getElementById('staff-name-input').value.trim();
+            const designation = document.getElementById('staff-desig-input').value.trim();
+            const category = document.getElementById('staff-cat-input').value;
+            const email = document.getElementById('staff-email-input').value.trim();
+            const phone = document.getElementById('staff-phone-input').value.trim();
+            const joiningDate = document.getElementById('staff-date-input').value;
+
+            const newId = `STF-0${state.staffList.length + 1}`;
+            state.staffList.push({ id: newId, name, designation, email, phone, joiningDate, status: 'Active', category });
+            
+            state.notifications.unshift({
+                id: Date.now(),
+                message: `New staff member registered: ${name} (${designation})`,
+                time: 'Just now'
+            });
+
+            closeAddStaffModal();
+            showToast(`Staff member "${name}" registered successfully!`);
+        }
+
+        function deleteStaff(id) {
+            const staff = state.staffList.find(s => s.id === id);
+            if (!staff) return;
+            if (confirm(`Are you sure you want to remove ${staff.name} from the staff records?`)) {
+                state.staffList = state.staffList.filter(s => s.id !== id);
+                showToast(`Staff member "${staff.name}" removed successfully.`);
+                renderERP();
+            }
+        }
+
+        function editStaff(id) {
+            const staff = state.staffList.find(s => s.id === id);
+            if (!staff) return;
+            
+            const newName = prompt(`Edit name for ${staff.name}:`, staff.name);
+            if (newName === null) return;
+            
+            const newDesig = prompt(`Edit designation for ${staff.name}:`, staff.designation);
+            if (newDesig === null) return;
+
+            staff.name = newName.trim();
+            staff.designation = newDesig.trim();
+            
+            showToast(`Staff profile updated successfully!`);
+            renderERP();
+        }
+
+        // Add/Remove Students
+        function openAddStudentModal() {
+            state.showAddStudentModal = true;
+            renderERP();
+        }
+
+        function closeAddStudentModal() {
+            state.showAddStudentModal = false;
+            renderERP();
+        }
+
+        function submitAddStudent(e) {
+            e.preventDefault();
+            const name = document.getElementById('stud-name-input').value.trim();
+            const rollNo = document.getElementById('stud-roll-input').value.trim();
+            const className = document.getElementById('stud-class-input').value;
+            const parent = document.getElementById('stud-parent-input').value.trim();
+            const phone = document.getElementById('stud-phone-input').value.trim();
+            const feeStatus = document.getElementById('stud-fee-input').value;
+
+            if (state.studentList.some(s => s.rollNo === rollNo)) {
+                showToast(`Roll Number ${rollNo} already exists!`, 'error');
+                return;
+            }
+
+            state.studentList.push({ rollNo, name, className, parent, phone, status: 'Active', feeStatus });
+
+            if (feeStatus === 'Pending') {
+                state.pendingFeesCount++;
+            }
+
+            state.notifications.unshift({
+                id: Date.now(),
+                message: `New student enrolled: ${name} (${className})`,
+                time: 'Just now'
+            });
+
+            closeAddStudentModal();
+            showToast(`Student "${name}" added to class list!`);
+        }
+
+        // Delete student
+        function deleteStudent(rollNo) {
+            const student = state.studentList.find(s => s.rollNo === rollNo);
+            if (!student) return;
+            if (confirm(`Are you sure you want to delete student ${student.name} (${student.rollNo})?`)) {
+                if (student.feeStatus === 'Pending') {
+                    state.pendingFeesCount = Math.max(0, state.pendingFeesCount - 1);
+                }
+                state.studentList = state.studentList.filter(s => s.rollNo !== rollNo);
+                showToast(`Student "${student.name}" records deleted.`);
+                renderERP();
+            }
+        }
+
+        function editStudent(rollNo) {
+            const student = state.studentList.find(s => s.rollNo === rollNo);
+            if (!student) return;
+
+            const newName = prompt(`Edit student name for ${student.name}:`, student.name);
+            if (newName === null) return;
+
+            const newParent = prompt(`Edit parent name for ${student.name}:`, student.parent);
+            if (newParent === null) return;
+
+            student.name = newName.trim();
+            student.parent = newParent.trim();
+
+            showToast(`Student record updated!`);
+            renderERP();
+        }
+
+        // Record Payments
+        function openRecordPaymentModal(rollNo) {
+            const student = state.studentList.find(s => s.rollNo === rollNo);
+            if (!student) return;
+            state.selectedPaymentStudent = student;
+            state.showRecordPaymentModal = true;
+            renderERP();
+            document.getElementById('payment-date-input').valueAsDate = new Date();
+        }
+
+        function closeRecordPaymentModal() {
+            state.showRecordPaymentModal = false;
+            state.selectedPaymentStudent = null;
+            renderERP();
+        }
+
+        function submitRecordPayment(e) {
+            e.preventDefault();
+            const student = state.selectedPaymentStudent;
+            const method = document.getElementById('payment-method-input').value;
+            const date = document.getElementById('payment-date-input').value;
+
+            student.feeStatus = 'Paid';
+            state.pendingFeesCount = Math.max(0, state.pendingFeesCount - 1);
+            state.feesCollected += 2200;
+
+            const newTxId = `TXN-90${state.feeTransactions.length + 22}`;
+            state.feeTransactions.unshift({
+                txId: newTxId,
+                studentName: student.name,
+                className: student.className,
+                amount: 2200,
+                date,
+                method
+            });
+
+            state.notifications.unshift({
+                id: Date.now(),
+                message: `Recorded payment of ₹ 2,200 for ${student.name} via ${method}`,
+                time: 'Just now'
+            });
+
+            closeRecordPaymentModal();
+            showToast(`Fee payment recorded successfully for ${student.name}!`);
+        }
+
+        // Admission applications actions
+        function approveApplication(id) {
+            const app = state.applications.find(a => a.id === id);
+            if (!app) return;
+            app.status = 'Approved';
+            
+            const newRoll = `SCH-${200 + state.studentList.length + 1}`;
+            state.studentList.push({
+                rollNo: newRoll,
+                name: app.student,
+                className: app.className,
+                parent: app.parent,
+                phone: app.phone,
+                status: 'Active',
+                feeStatus: 'Pending'
+            });
+            state.pendingFeesCount++;
+
+            state.notifications.unshift({
+                id: Date.now(),
+                message: `Admission request approved for ${app.student}. Assigned roll no: ${newRoll}`,
+                time: 'Just now'
+            });
+
+            showToast(`Application approved! Student added to class list.`);
+            renderERP();
+        }
+
+        function rejectApplication(id) {
+            const app = state.applications.find(a => a.id === id);
+            if (!app) return;
+            app.status = 'Rejected';
+            showToast(`Application rejected.`, 'error');
+            renderERP();
+        }
+
+        function triggerDBBackup() {
+            showToast('Initiating cloud database backup sync...');
+            setTimeout(() => {
+                showToast('Database snapshots synced successfully to AWS AP-South S3 bucket.');
+            }, 1000);
+        }
+
+        function saveSettings() {
+            const session = document.getElementById('setting-session').value;
+            showToast(`ERP configuration saved. Active Session: ${session}`);
+            navigateERP('overview');
+        }
+
+        // Layout Components
+        function ERPHeader() {
+            return `
+                <header class="bg-[#2F4156] text-white h-16 fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 sm:px-6 shadow-md select-none">
+                    <!-- Left Area: Back Button and Logo -->
+                    <div class="flex items-center gap-3">
+                        <a href="index.html?page=admin" class="p-2 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center text-white/80 hover:text-white" title="Return to Control Panel">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                        </a>
+                        <div class="h-6 w-[1px] bg-white/20"></div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold text-lg tracking-wider text-[#C8D9E6]">SC</span>
+                            <span class="font-bold text-sm tracking-wide hidden sm:inline">Shri Chamunda ERP</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Area: Status, Notifications, Profile -->
+                    <div class="flex items-center gap-4">
+                        <!-- System Status -->
+                        <div class="hidden md:flex items-center gap-2 bg-black/25 border border-white/10 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest text-green-400">
+                            <span class="w-2 h-2 rounded-full bg-green-500 online-pulse"></span>
+                            System Online
+                        </div>
+
+                        <!-- Notifications Button -->
+                        <div class="relative">
+                            <button onclick="toggleNotificationsDropdown()" class="p-2 hover:bg-white/10 rounded-lg transition-colors relative flex items-center justify-center text-white/80 hover:text-white">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                </svg>
+                                ${state.notifications.length > 0 ? `<span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#2F4156]"></span>` : ''}
+                            </button>
+
+                            <!-- Notifications Dropdown -->
+                            ${state.showNotificationsDropdown ? `
+                                <div class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 text-navy py-2 animate-fadeIn z-50">
+                                    <div class="px-4 py-2 border-b border-gray-100 flex items-center justify-between">
+                                        <span class="font-bold text-xs uppercase tracking-wider text-navyLight">Notifications</span>
+                                        <span class="text-[10px] text-primary font-bold cursor-pointer hover:underline" onclick="clearNotifications()">Clear All</span>
+                                    </div>
+                                    <div class="max-h-60 overflow-y-auto">
+                                        ${state.notifications.length > 0 ? state.notifications.map(n => `
+                                            <div class="px-4 py-3 hover:bg-softGray transition-colors border-b border-gray-50 last:border-0">
+                                                <p class="text-xs font-semibold text-navy leading-normal">${n.message}</p>
+                                                <span class="text-[9px] text-navyLight/60 block mt-1">${n.time}</span>
+                                            </div>
+                                        `).join('') : `
+                                            <div class="py-6 text-center text-xs text-navyLight/40 font-medium">No new alerts.</div>
+                                        `}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- User Profile Pill -->
+                        <div class="relative">
+                            <button onclick="toggleProfileDropdown()" class="flex items-center gap-2.5 border border-white/20 rounded-full pl-2 pr-3 py-1 bg-white/5 hover:bg-white/10 transition-colors">
+                                <div class="w-7 h-7 rounded-full bg-[#567C8D] text-white flex items-center justify-center font-bold text-xs shadow-inner">C</div>
+                                <div class="flex flex-col text-left">
+                                    <span class="font-bold text-xs leading-none">Chetan</span>
+                                    <span class="text-[8px] text-white/60 font-bold uppercase tracking-wider mt-0.5">Admin</span>
+                                </div>
+                                <svg class="w-3 h-3 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <!-- Profile Dropdown -->
+                            ${state.showProfileDropdown ? `
+                                <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 text-navy py-1.5 animate-fadeIn z-50">
+                                    <div class="px-4 py-2 border-b border-gray-100">
+                                        <p class="text-xs font-bold text-navy">Chetan Singh</p>
+                                        <p class="text-[10px] text-navyLight">chetan@chamundaviewschool.edu.in</p>
+                                    </div>
+                                    <button onclick="navigateERP('settings')" class="w-full text-left px-4 py-2.5 text-xs text-navyLight hover:text-primary hover:bg-gray-50 flex items-center gap-2 transition-colors">
+                                        <svg class="w-4 h-4 text-navyLight" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.89 3.31.877 2.42 2.42a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.89 1.543-.877 3.31-2.42 2.42a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.89-3.31-.877-2.42-2.42a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.89-1.543.877-3.31 2.42-2.42.996.575 2.247.03 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        Account Settings
+                                    </button>
+                                    <a href="index.html?page=admin" class="w-full text-left px-4 py-2.5 text-xs text-[#DC2626] hover:bg-red-50 flex items-center gap-2 border-t border-gray-100 transition-colors">
+                                        <svg class="w-4 h-4 text-[#DC2626]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                        </svg>
+                                        Exit ERP
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </header>
+            `;
+        }
+
+        function ERPSidebar() {
+            return `
+                <!-- Desktop Sidebar -->
+                <aside class="hidden lg:block w-64 bg-white border-r border-gray-200/50 pt-20 pb-4 fixed top-0 bottom-0 left-0 z-30 select-none">
+                    <div class="h-full flex flex-col justify-between px-4 py-4">
+                        <div class="space-y-1">
+                            <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-navyLight/50 mb-3">Management</p>
+                            ${erpLinks.map(link => `
+                                <button onclick="navigateERP('${link.id}')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${state.currentPage === link.id ? 'bg-[#567C8D]/10 text-primary font-bold' : 'text-navyLight hover:text-primary hover:bg-[#567C8D]/5'}">
+                                    <span class="flex-shrink-0">${ERPIcon(link.icon)}</span>
+                                    ${link.label}
+                                </button>
+                            `).join('')}
+                        </div>
+                        
+                        <!-- School Info Pill -->
+                        <div class="p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                            <h4 class="font-bold text-xs text-navy">Shri Chamunda School</h4>
+                            <p class="text-[9px] text-navyLight mt-0.5">Dadh, Kangra, HP</p>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Mobile Drawer Menu Toggle Bar -->
+                <div class="lg:hidden h-12 bg-white border-b border-gray-200 fixed top-16 left-0 right-0 z-30 flex items-center justify-between px-4 shadow-sm select-none">
+                    <button onclick="toggleMobileSidebar()" class="flex items-center gap-2 text-navyLight hover:text-primary text-xs font-bold transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                        ERP Navigation
+                    </button>
+                    <div class="text-xs font-bold text-primary capitalize bg-[#567C8D]/10 px-3 py-1 rounded-full">
+                        ${erpLinks.find(l => l.id === state.currentPage)?.label || 'Overview'}
+                    </div>
+                </div>
+
+                <!-- Mobile Drawer Sidebar Backdrop -->
+                ${state.sidebarOpen ? `
+                    <div onclick="toggleMobileSidebar()" class="lg:hidden fixed inset-0 z-45 bg-navy/40 backdrop-blur-sm animate-fadeIn"></div>
+                    
+                    <!-- Mobile Drawer Sidebar Container -->
+                    <aside class="lg:hidden fixed top-0 bottom-0 left-0 w-64 bg-white z-50 pt-20 pb-4 shadow-2xl animate-slideInLeft">
+                        <div class="h-full flex flex-col justify-between px-4 py-4">
+                            <div class="space-y-1">
+                                <div class="flex items-center justify-between px-3 mb-4">
+                                    <p class="text-[10px] font-bold uppercase tracking-wider text-navyLight/50">Management</p>
+                                    <button onclick="toggleMobileSidebar()" class="text-navyLight hover:text-[#DC2626]">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                ${erpLinks.map(link => `
+                                    <button onclick="navigateERP('${link.id}')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${state.currentPage === link.id ? 'bg-[#567C8D]/10 text-primary font-bold' : 'text-navyLight hover:text-primary hover:bg-[#567C8D]/5'}">
+                                        <span class="flex-shrink-0">${ERPIcon(link.icon)}</span>
+                                        ${link.label}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            
+                            <div class="p-3 bg-gray-50 rounded-2xl border border-gray-100">
+                                <h4 class="font-bold text-xs text-navy">Shri Chamunda School</h4>
+                                <p class="text-[9px] text-navyLight mt-0.5">Dadh, Kangra, HP</p>
+                            </div>
+                        </div>
+                    </aside>
+                ` : ''}
+            `;
+        }
+
+        // Page Renderings Definitions
+        function OverviewPage() {
+            const studentCount = state.studentList.length;
+            const staffCount = state.staffList.length;
+            const pendingFees = state.pendingFeesCount;
+
+            return `
+                <div class="space-y-6">
+                    <!-- Welcome Banner Card -->
+                    <div class="relative bg-gradient-to-br from-[#2F4156] via-[#3a526d] to-[#567C8D] text-white rounded-3xl p-6 sm:p-8 card-shadow overflow-hidden">
+                        <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-white/5 rounded-full blur-2xl"></div>
+                        <div class="absolute -left-10 -top-10 w-44 h-44 bg-[#C8D9E6]/10 rounded-full blur-xl"></div>
+                        
+                        <div class="relative z-10 max-w-2xl">
+                            <span class="bg-[#C8D9E6]/25 border border-white/20 text-[#C8D9E6] px-3.5 py-1 rounded-full text-[10px] uppercase font-extrabold tracking-widest inline-block mb-4">Academic Session 2026-27</span>
+                            <h1 class="text-2xl sm:text-3xl font-extrabold font-display leading-tight tracking-tight">Shri Chamunda School Control Hub</h1>
+                            <p class="text-white/80 text-xs sm:text-sm mt-2.5 font-medium leading-relaxed">
+                                Welcome to the administrative ERP database dashboard. Access quick metrics, manage admissions, record class schedules, verify school transports, track accounts, and manage human resource profiles.
+                            </p>
+                            <div class="mt-6 flex flex-wrap gap-3">
+                                <button onclick="navigateERP('staff')" class="px-5 py-2.5 bg-[#C8D9E6] hover:bg-[#b0c8d9] text-navy font-bold text-xs rounded-xl shadow-sm transition-all hover:scale-[1.02]">
+                                    + Register New Staff
+                                </button>
+                                <button onclick="navigateERP('students')" class="px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs rounded-xl transition-all">
+                                    Manage Students
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Blocks -->
+                    <div class="grid sm:grid-cols-3 gap-6">
+                        <!-- Total Students Stat -->
+                        <div class="bg-white rounded-2xl p-5 card-shadow border border-gray-100 flex items-center justify-between card-hover">
+                            <div>
+                                <span class="text-navyLight text-[11px] font-bold uppercase tracking-wider block">Total Students</span>
+                                <span class="text-3xl font-extrabold text-navy font-display mt-2 block">${studentCount}</span>
+                                <span class="text-[10px] text-green-500 font-semibold flex items-center gap-1 mt-1.5">
+                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full inline-block"></span> Active Enrollment
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
+                                ${ERPIcon('students')}
+                            </div>
+                        </div>
+
+                        <!-- Teaching Staff Stat -->
+                        <div class="bg-white rounded-2xl p-5 card-shadow border border-gray-100 flex items-center justify-between card-hover">
+                            <div>
+                                <span class="text-navyLight text-[11px] font-bold uppercase tracking-wider block">Teaching Staff</span>
+                                <span class="text-3xl font-extrabold text-navy font-display mt-2 block">${staffCount}</span>
+                                <span class="text-[10px] text-blue-500 font-semibold flex items-center gap-1 mt-1.5">
+                                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full inline-block"></span> Active Accounts
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                                ${ERPIcon('staff')}
+                            </div>
+                        </div>
+
+                        <!-- Pending Fees Stat -->
+                        <div class="bg-white rounded-2xl p-5 card-shadow border border-gray-100 flex items-center justify-between card-hover">
+                            <div>
+                                <span class="text-navyLight text-[11px] font-bold uppercase tracking-wider block">Pending Fees</span>
+                                <span class="text-3xl font-extrabold text-[#DC2626] font-display mt-2 block">${pendingFees}</span>
+                                <span class="text-[10px] text-[#DC2626]/75 font-semibold flex items-center gap-1 mt-1.5">
+                                    <span class="w-1.5 h-1.5 bg-[#DC2626] rounded-full inline-block"></span> Accounts Awaiting Payment
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 bg-red-55 rounded-xl flex items-center justify-center text-[#DC2626] bg-[#F5EFEB]">
+                                ${ERPIcon('fees')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modular Modules Grid -->
+                    <div>
+                        <div class="flex items-center justify-between mb-4 mt-8">
+                            <h3 class="font-extrabold text-navy text-base uppercase tracking-wider">ERP Control Modules</h3>
+                            <span class="text-xs text-navyLight/60 font-medium">Select a section to manage records</span>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <!-- Student Directory Card -->
+                            <div class="bg-white p-5 rounded-2xl border border-gray-100 card-shadow hover:border-primary/20 transition-all flex flex-col justify-between card-hover">
+                                <div>
+                                    <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-600 mb-4">
+                                        ${ERPIcon('students')}
+                                    </div>
+                                    <h4 class="font-bold text-navy text-sm">Student Directory</h4>
+                                    <p class="text-navyLight/70 text-xs mt-1.5 leading-relaxed font-medium">
+                                        Access and edit the entire directory of registered students. Track classes, edit roll numbers, and view parental contacts.
+                                    </p>
+                                </div>
+                                <button onclick="navigateERP('students')" class="mt-5 w-full py-2 bg-gray-50 border border-gray-100 hover:border-primary/35 text-navy font-bold text-xs rounded-xl transition-all hover:bg-gray-100/50 flex items-center justify-center gap-1.5">
+                                    Open Directory
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+
+                            <!-- Fee Management Card -->
+                            <div class="bg-white p-5 rounded-2xl border border-gray-100 card-shadow hover:border-primary/20 transition-all flex flex-col justify-between card-hover">
+                                <div>
+                                    <div class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center text-[#DC2626] mb-4">
+                                        ${ERPIcon('fees')}
+                                    </div>
+                                    <h4 class="font-bold text-navy text-sm">Fee Management</h4>
+                                    <p class="text-navyLight/70 text-xs mt-1.5 leading-relaxed font-medium">
+                                        Monitor pending dues, record incoming school tuition fees, issue transaction summaries, and view class-wise statistics.
+                                    </p>
+                                </div>
+                                <button onclick="navigateERP('fees')" class="mt-5 w-full py-2 bg-gray-50 border border-gray-100 hover:border-primary/35 text-navy font-bold text-xs rounded-xl transition-all hover:bg-gray-100/50 flex items-center justify-center gap-1.5">
+                                    Manage Accounts
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+
+                            <!-- Transport Card -->
+                            <div class="bg-white p-5 rounded-2xl border border-gray-100 card-shadow hover:border-primary/20 transition-all flex flex-col justify-between card-hover">
+                                <div>
+                                    <div class="w-10 h-10 bg-yellow-50 rounded-xl flex items-center justify-center text-yellow-600 mb-4">
+                                        ${ERPIcon('transport')}
+                                    </div>
+                                    <h4 class="font-bold text-navy text-sm">School Transport</h4>
+                                    <p class="text-navyLight/70 text-xs mt-1.5 leading-relaxed font-medium">
+                                        Review bus lines, dispatch records, update drivers' emergency contacts, assign routes to students, and verify vehicle details.
+                                    </p>
+                                </div>
+                                <button onclick="navigateERP('transport')" class="mt-5 w-full py-2 bg-gray-50 border border-gray-100 hover:border-primary/35 text-navy font-bold text-xs rounded-xl transition-all hover:bg-gray-100/50 flex items-center justify-center gap-1.5">
+                                    View Bus Routes
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+
+                            <!-- Staff & HR Card -->
+                            <div class="bg-white p-5 rounded-2xl border border-gray-100 card-shadow hover:border-primary/20 transition-all flex flex-col justify-between card-hover">
+                                <div>
+                                    <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 mb-4">
+                                        ${ERPIcon('staff')}
+                                    </div>
+                                    <h4 class="font-bold text-navy text-sm">Staff & HR Management</h4>
+                                    <p class="text-navyLight/70 text-xs mt-1.5 leading-relaxed font-medium">
+                                        Register teaching and administrative staff, update roles/subject assignments, edit contact details, and view salaries status.
+                                    </p>
+                                </div>
+                                <button onclick="navigateERP('staff')" class="mt-5 w-full py-2 bg-gray-50 border border-gray-100 hover:border-primary/35 text-navy font-bold text-xs rounded-xl transition-all hover:bg-gray-100/50 flex items-center justify-center gap-1.5">
+                                    Manage Staff
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+
+                            <!-- Admissions Card -->
+                            <div class="bg-white p-5 rounded-2xl border border-gray-100 card-shadow hover:border-primary/20 transition-all flex flex-col justify-between card-hover">
+                                <div>
+                                    <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 mb-4">
+                                        ${ERPIcon('admissions')}
+                                    </div>
+                                    <h4 class="font-bold text-navy text-sm">Admissions Tracker</h4>
+                                    <p class="text-navyLight/70 text-xs mt-1.5 leading-relaxed font-medium">
+                                        Track student applications, check academic registrations, process admissions forms, and evaluate new session classes.
+                                    </p>
+                                </div>
+                                <button onclick="navigateERP('admissions')" class="mt-5 w-full py-2 bg-gray-50 border border-gray-100 hover:border-primary/35 text-navy font-bold text-xs rounded-xl transition-all hover:bg-gray-100/50 flex items-center justify-center gap-1.5">
+                                    Verify Applications
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+
+                            <!-- Settings Card -->
+                            <div class="bg-white p-5 rounded-2xl border border-gray-100 card-shadow hover:border-primary/20 transition-all flex flex-col justify-between card-hover">
+                                <div>
+                                    <div class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-600 mb-4">
+                                        ${ERPIcon('settings')}
+                                    </div>
+                                    <h4 class="font-bold text-navy text-sm">System Settings</h4>
+                                    <p class="text-navyLight/70 text-xs mt-1.5 leading-relaxed font-medium">
+                                        Configure school ERP features, change academic year, manage system logs, and view admin database stats details.
+                                    </p>
+                                </div>
+                                <button onclick="navigateERP('settings')" class="mt-5 w-full py-2 bg-gray-50 border border-gray-100 hover:border-primary/35 text-navy font-bold text-xs rounded-xl transition-all hover:bg-gray-100/50 flex items-center justify-center gap-1.5">
+                                    Configure ERP
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function StaffPage() {
+            const query = state.staffSearchQuery.toLowerCase().trim();
+            let filteredStaff = state.staffList;
+            
+            if (state.activeStaffTab === 'admin') {
+                filteredStaff = filteredStaff.filter(s => s.category === 'admin');
+            } else if (state.activeStaffTab === 'teaching') {
+                filteredStaff = filteredStaff.filter(s => s.category === 'teaching');
+            }
+            
+            if (query) {
+                filteredStaff = filteredStaff.filter(s => 
+                    s.name.toLowerCase().includes(query) || 
+                    s.designation.toLowerCase().includes(query) ||
+                    s.email.toLowerCase().includes(query) ||
+                    s.phone.includes(query)
+                );
+            }
+
+            const rows = filteredStaff.map(staff => `
+                <tr class="border-b border-gray-50 hover:bg-softGray/50 transition-colors">
+                    <td class="py-4 px-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
+                                ${staff.name.charAt(0)}
+                            </div>
+                            <div>
+                                <div class="font-bold text-navy text-sm">${staff.name}</div>
+                                <div class="text-[10px] text-navyLight/60 mt-0.5">${staff.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-5">
+                        <div class="text-sm font-semibold text-navy">${staff.designation}</div>
+                        <div class="text-[10px] text-navyLight uppercase tracking-wider mt-0.5">${staff.category}</div>
+                    </td>
+                    <td class="py-4 px-5 text-xs text-navyLight">
+                        <div>${staff.email}</div>
+                        <div class="mt-0.5">${staff.phone}</div>
+                    </td>
+                    <td class="py-4 px-5 text-xs text-navyLight whitespace-nowrap">
+                        ${staff.joiningDate}
+                    </td>
+                    <td class="py-4 px-5">
+                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full select-none ${staff.status === 'Active' ? 'bg-green-50 text-green-600 border border-green-100/50' : 'bg-yellow-50 text-yellow-600 border border-yellow-100/50'}">
+                            ${staff.status}
+                        </span>
+                    </td>
+                    <td class="py-4 px-5 text-right text-xs whitespace-nowrap">
+                        <button onclick="editStaff('${staff.id}')" class="text-primary hover:text-primaryDark font-bold mr-4 transition-colors">Edit</button>
+                        <button onclick="deleteStaff('${staff.id}')" class="text-[#DC2626] hover:text-[#B91C1C] font-bold transition-colors">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            return `
+                <div class="bg-white rounded-3xl card-shadow p-6 md:p-8 space-y-6 animate-fadeIn">
+                    <!-- Header Section -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold font-display text-navy leading-tight">Staff & HR Management</h2>
+                            <p class="text-xs text-navyLight mt-1">Register new faculty profiles, edit administrative assignments, and view statuses.</p>
+                        </div>
+                        <button onclick="openAddStaffModal()" class="px-5 py-2.5 bg-[#567C8D] hover:bg-[#2F4156] text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 self-start sm:self-auto hover:scale-[1.02]">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                            Register New Staff
+                        </button>
+                    </div>
+
+                    <!-- Tabs and Search Bar -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+                        <div class="flex items-center gap-2 p-1 bg-gray-50 rounded-xl self-start select-none">
+                            <button onclick="setStaffTab('all')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all ${state.activeStaffTab === 'all' ? 'bg-white text-navy shadow-sm border border-gray-200' : 'text-navyLight hover:text-navy'}">
+                                All Staff
+                            </button>
+                            <button onclick="setStaffTab('teaching')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all ${state.activeStaffTab === 'teaching' ? 'bg-white text-navy shadow-sm border border-gray-200' : 'text-navyLight hover:text-navy'}">
+                                Teaching Staff
+                            </button>
+                            <button onclick="setStaffTab('admin')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all ${state.activeStaffTab === 'admin' ? 'bg-white text-navy shadow-sm border border-gray-200' : 'text-navyLight hover:text-navy'}">
+                                Administrators
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 w-full md:w-auto">
+                            <div class="relative w-full md:w-72">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-navyLight/50">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </span>
+                                <input type="text" oninput="searchStaff(this.value)" value="${state.staffSearchQuery}" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none text-navy text-xs shadow-sm" placeholder="Search by name, role, email...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table Container -->
+                    <div class="overflow-x-auto rounded-2xl border border-gray-100">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-100">
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Staff Member</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Designation</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Contact Info</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Joining Date</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Status</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows ? rows : `
+                                    <tr>
+                                        <td colspan="6" class="py-8 text-center text-xs text-navyLight/50 font-medium">
+                                            No staff members found matching criteria.
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function StudentsPage() {
+            const query = state.studentSearchQuery.toLowerCase().trim();
+            let filteredStudents = state.studentList;
+
+            if (state.activeStudentTab === 'active') {
+                filteredStudents = filteredStudents.filter(s => s.status === 'Active');
+            } else if (state.activeStudentTab === 'pending') {
+                filteredStudents = filteredStudents.filter(s => s.status === 'Pending');
+            }
+
+            if (query) {
+                filteredStudents = filteredStudents.filter(s => 
+                    s.name.toLowerCase().includes(query) ||
+                    s.className.toLowerCase().includes(query) ||
+                    s.parent.toLowerCase().includes(query) ||
+                    s.rollNo.toLowerCase().includes(query)
+                );
+            }
+
+            const rows = filteredStudents.map(student => `
+                <tr class="border-b border-gray-50 hover:bg-softGray/50 transition-colors">
+                    <td class="py-4 px-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-green-50 text-green-600 flex items-center justify-center font-bold text-sm">
+                                ${student.name.charAt(0)}
+                            </div>
+                            <div>
+                                <div class="font-bold text-navy text-sm">${student.name}</div>
+                                <div class="text-[10px] text-navyLight/60 mt-0.5">${student.rollNo}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 px-5 text-sm font-semibold text-navy">${student.className}</td>
+                    <td class="py-4 px-5 text-xs text-navyLight">
+                        <div class="font-medium text-navy">${student.parent}</div>
+                        <div class="mt-0.5">${student.phone}</div>
+                    </td>
+                    <td class="py-4 px-5">
+                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full select-none ${student.feeStatus === 'Paid' ? 'bg-green-50 text-green-600 border border-green-100/50' : 'bg-red-50 text-[#DC2626] border border-red-100/50'}">
+                            ${student.feeStatus}
+                        </span>
+                    </td>
+                    <td class="py-4 px-5">
+                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full select-none ${student.status === 'Active' ? 'bg-green-50 text-green-600 border border-green-100/50' : 'bg-gray-100 text-gray-500 border border-gray-200/50'}">
+                            ${student.status}
+                        </span>
+                    </td>
+                    <td class="py-4 px-5 text-right text-xs whitespace-nowrap">
+                        <button onclick="editStudent('${student.rollNo}')" class="text-primary hover:text-primaryDark font-bold mr-4 transition-colors">Edit</button>
+                        <button onclick="deleteStudent('${student.rollNo}')" class="text-[#DC2626] hover:text-[#B91C1C] font-bold transition-colors">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            return `
+                <div class="bg-white rounded-3xl card-shadow p-6 md:p-8 space-y-6 animate-fadeIn">
+                    <!-- Header Section -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold font-display text-navy leading-tight">Student Directory</h2>
+                            <p class="text-xs text-navyLight mt-1">Manage active class lists, track enrollments, and check fee transaction status.</p>
+                        </div>
+                        <button onclick="openAddStudentModal()" class="px-5 py-2.5 bg-[#567C8D] hover:bg-[#2F4156] text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 self-start sm:self-auto hover:scale-[1.02]">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                            Add New Student
+                        </button>
+                    </div>
+
+                    <!-- Tabs and Search Bar -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+                        <div class="flex items-center gap-2 p-1 bg-gray-50 rounded-xl self-start select-none">
+                            <button onclick="setStudentTab('all')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all ${state.activeStudentTab === 'all' ? 'bg-white text-navy shadow-sm border border-gray-200' : 'text-navyLight hover:text-navy'}">
+                                All Students
+                            </button>
+                            <button onclick="setStudentTab('active')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all ${state.activeStudentTab === 'active' ? 'bg-white text-navy shadow-sm border border-gray-200' : 'text-navyLight hover:text-navy'}">
+                                Active List
+                            </button>
+                            <button onclick="setStudentTab('pending')" class="px-4 py-2 text-xs font-bold rounded-lg transition-all ${state.activeStudentTab === 'pending' ? 'bg-white text-navy shadow-sm border border-gray-200' : 'text-navyLight hover:text-navy'}">
+                                Pending Admissions
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 w-full md:w-auto">
+                            <div class="relative w-full md:w-72">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-navyLight/50">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </span>
+                                <input type="text" oninput="searchStudents(this.value)" value="${state.studentSearchQuery}" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none text-navy text-xs shadow-sm" placeholder="Search by name, roll, class...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table Container -->
+                    <div class="overflow-x-auto rounded-2xl border border-gray-100">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-100">
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Student Details</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Class</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Parent Contact</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Fees</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Status</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows ? rows : `
+                                    <tr>
+                                        <td colspan="6" class="py-8 text-center text-xs text-navyLight/50 font-medium">
+                                            No students found matching criteria.
+                                        </td>
+                                    </tr>
+                                `}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function FeesPage() {
+            const query = state.feeSearchQuery.toLowerCase().trim();
+            let pendingStudents = state.studentList.filter(s => s.feeStatus === 'Pending');
+
+            if (query) {
+                pendingStudents = pendingStudents.filter(s => 
+                    s.name.toLowerCase().includes(query) ||
+                    s.className.toLowerCase().includes(query) ||
+                    s.rollNo.toLowerCase().includes(query)
+                );
+            }
+
+            const rows = pendingStudents.map(student => `
+                <tr class="border-b border-gray-50 hover:bg-softGray/50 transition-colors">
+                    <td class="py-4 px-5">
+                        <div class="font-bold text-navy text-sm">${student.name}</div>
+                        <div class="text-[10px] text-navyLight/60 mt-0.5">${student.rollNo}</div>
+                    </td>
+                    <td class="py-4 px-5 text-sm font-semibold text-navy">${student.className}</td>
+                    <td class="py-4 px-5 text-xs text-navyLight font-medium">
+                        ₹ 2,200 <span class="text-[10px] text-navyLight/40 font-semibold">(Tuition Fees)</span>
+                    </td>
+                    <td class="py-4 px-5">
+                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-red-50 text-[#DC2626] border border-red-100/50 select-none">
+                            Overdue (Term 2)
+                        </span>
+                    </td>
+                    <td class="py-4 px-5 text-right text-xs whitespace-nowrap">
+                        <button onclick="openRecordPaymentModal('${student.rollNo}')" class="px-3.5 py-1.5 bg-[#567C8D] hover:bg-[#2F4156] text-white font-bold rounded-lg transition-colors shadow-sm">
+                            Record Payment
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            const totalOutstanding = state.pendingFeesCount * 2200;
+            
+            const transactionRows = state.feeTransactions.map(t => `
+                <tr class="border-b border-gray-50 text-xs text-navyLight hover:bg-softGray/20 transition-colors">
+                    <td class="py-3 px-4 font-bold text-navy">${t.txId}</td>
+                    <td class="py-3 px-4 font-semibold text-navy">${t.studentName}</td>
+                    <td class="py-3 px-4 font-medium">${t.className}</td>
+                    <td class="py-3 px-4 font-bold text-green-600">₹ ${t.amount}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">${t.date}</td>
+                    <td class="py-3 px-4 font-semibold text-navyLight">${t.method}</td>
+                </tr>
+            `).join('');
+
+            return `
+                <div class="space-y-6 animate-fadeIn">
+                    <!-- Fee Metrics Row -->
+                    <div class="grid sm:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-navyLight/50 block">Collected (This Month)</span>
+                            <span class="text-2xl font-extrabold text-green-600 font-display mt-2 block">₹ ${state.feesCollected.toLocaleString()}</span>
+                            <p class="text-[10px] text-navyLight/60 mt-1.5">Class I to XII tuition summary</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-navyLight/50 block">Outstanding Balance</span>
+                            <span class="text-2xl font-extrabold text-[#DC2626] font-display mt-2 block">₹ ${totalOutstanding.toLocaleString()}</span>
+                            <p class="text-[10px] text-navyLight/60 mt-1.5">Based on ${state.pendingFeesCount} overdue accounts</p>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-5 border border-gray-100 card-shadow">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-navyLight/50 block">Collection Rate</span>
+                            <span class="text-2xl font-extrabold text-navy font-display mt-2 block">72.4%</span>
+                            <div class="w-full bg-gray-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                                <div class="bg-primary h-full rounded-full" style="width: 72.4%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pending Accounts and Transactions -->
+                    <div class="grid xl:grid-cols-[1.3fr,1fr] gap-6">
+                        <!-- Pending Tuition Table -->
+                        <div class="bg-white rounded-3xl p-6 border border-gray-100 card-shadow space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-50 pb-4">
+                                <div>
+                                    <h3 class="font-bold text-navy text-base leading-tight">Overdue Tuition Accounts</h3>
+                                    <p class="text-[11px] text-navyLight mt-0.5">Students awaiting Term 2 fee payment submissions.</p>
+                                </div>
+                                
+                                <div class="relative w-full sm:w-56">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-navyLight/50">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                    </span>
+                                    <input type="text" oninput="searchFees(this.value)" value="${state.feeSearchQuery}" class="w-full pl-8 pr-3 py-2 rounded-xl border border-gray-200 bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none text-navy text-xs shadow-sm" placeholder="Search accounts...">
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-xl border border-gray-100">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b border-gray-100 text-[10px] font-bold uppercase tracking-wider text-navyLight">
+                                            <th class="py-2.5 px-5">Student</th>
+                                            <th class="py-2.5 px-5">Class</th>
+                                            <th class="py-2.5 px-5">Dues</th>
+                                            <th class="py-2.5 px-5">Status</th>
+                                            <th class="py-2.5 px-5 text-right">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rows ? rows : `
+                                            <tr>
+                                                <td colspan="5" class="py-8 text-center text-xs text-navyLight/50 font-medium">
+                                                    No outstanding fee accounts found.
+                                                </td>
+                                            </tr>
+                                        `}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Recent Transactions History -->
+                        <div class="bg-white rounded-3xl p-6 border border-gray-100 card-shadow space-y-4">
+                            <div>
+                                <h3 class="font-bold text-navy text-base leading-tight">Recent Receipts Log</h3>
+                                <p class="text-[11px] text-navyLight mt-0.5">Real-time ledger of recorded payments.</p>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-xl border border-gray-100">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b border-gray-100 text-[10px] font-bold uppercase tracking-wider text-navyLight">
+                                            <th class="py-2 px-4">TXID</th>
+                                            <th class="py-2 px-4">Student</th>
+                                            <th class="py-2 px-4">Class</th>
+                                            <th class="py-2 px-4">Amount</th>
+                                            <th class="py-2 px-4">Date</th>
+                                            <th class="py-2 px-4">Method</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${transactionRows ? transactionRows : `
+                                            <tr>
+                                                <td colspan="6" class="py-6 text-center text-xs text-navyLight/50 font-medium">
+                                                    No transactions recorded.
+                                                </td>
+                                            </tr>
+                                        `}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function TransportPage() {
+            const rows = state.transportRoutes.map(route => `
+                <tr class="border-b border-gray-50 hover:bg-softGray/50 transition-colors">
+                    <td class="py-4 px-5">
+                        <div class="font-bold text-navy text-sm">${route.routeName}</div>
+                        <div class="text-[10px] text-navyLight mt-0.5">Stops: ${route.stops.join(' → ')}</div>
+                    </td>
+                    <td class="py-4 px-5">
+                        <div class="font-semibold text-navy text-xs">${route.driverName}</div>
+                        <div class="text-[10px] text-navyLight mt-0.5">${route.driverPhone}</div>
+                    </td>
+                    <td class="py-4 px-5 text-xs text-navyLight font-semibold whitespace-nowrap">
+                        ${route.vehicleNo}
+                    </td>
+                    <td class="py-4 px-5 text-xs text-navy font-bold text-center">
+                        ${route.studentCount}
+                    </td>
+                    <td class="py-4 px-5">
+                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full select-none ${route.status === 'Active' ? 'bg-green-50 text-green-600 border border-green-100/50' : 'bg-yellow-50 text-yellow-600 border border-yellow-100/50'}">
+                            ${route.status}
+                        </span>
+                    </td>
+                    <td class="py-4 px-5 text-right text-xs whitespace-nowrap">
+                        <button onclick="alert('Driver profile edits will sync to fleet control database')" class="text-primary hover:text-primaryDark font-bold transition-colors">Edit Route</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            return `
+                <div class="bg-white rounded-3xl card-shadow p-6 md:p-8 space-y-6 animate-fadeIn">
+                    <!-- Header Section -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold font-display text-navy leading-tight">School Transport Management</h2>
+                            <p class="text-xs text-navyLight mt-1">Review bus lines, track active routes, assign drivers, and monitor capacities.</p>
+                        </div>
+                    </div>
+
+                    <!-- Table Container -->
+                    <div class="overflow-x-auto rounded-2xl border border-gray-100">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-100">
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Route Details</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Assigned Driver</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Vehicle No.</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight text-center">Students Enrolled</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Route Status</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function AdmissionsERPPage() {
+            const rows = state.applications.map(app => `
+                <tr class="border-b border-gray-50 hover:bg-softGray/50 transition-colors">
+                    <td class="py-4 px-5">
+                        <div class="font-bold text-navy text-sm">${app.student}</div>
+                        <div class="text-[10px] text-navyLight/60 mt-0.5">ID: ${app.id}</div>
+                    </td>
+                    <td class="py-4 px-5 text-sm font-semibold text-navy">${app.className}</td>
+                    <td class="py-4 px-5 text-xs text-navyLight">
+                        <div class="font-medium text-navy">${app.parent}</div>
+                        <div class="mt-0.5">${app.phone}</div>
+                    </td>
+                    <td class="py-4 px-5 text-xs text-navyLight">
+                        ${app.date}
+                    </td>
+                    <td class="py-4 px-5">
+                        <span class="px-2.5 py-1 text-[10px] font-bold rounded-full select-none 
+                            ${app.status === 'Approved' ? 'bg-green-50 text-green-600 border border-green-100/50' : 
+                              app.status === 'Rejected' ? 'bg-red-50 text-[#DC2626] border border-red-100/50' : 
+                              'bg-yellow-50 text-yellow-600 border border-yellow-100/50'}">
+                            ${app.status}
+                        </span>
+                    </td>
+                    <td class="py-4 px-5 text-right text-xs whitespace-nowrap">
+                        ${app.status === 'New' || app.status === 'Review' ? `
+                            <button onclick="approveApplication('${app.id}')" class="text-green-600 hover:text-green-800 font-bold mr-4 transition-colors">Approve</button>
+                            <button onclick="rejectApplication('${app.id}')" class="text-[#DC2626] hover:text-[#B91C1C] font-bold transition-colors">Reject</button>
+                        ` : `
+                            <span class="text-navyLight/40 font-medium select-none">Processed</span>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+
+            return `
+                <div class="bg-white rounded-3xl card-shadow p-6 md:p-8 space-y-6 animate-fadeIn">
+                    <!-- Header Section -->
+                    <div>
+                        <h2 class="text-xl font-bold font-display text-navy leading-tight">Admissions Tracker</h2>
+                        <p class="text-xs text-navyLight mt-1">Review student admission applications submitted online and manage session lists.</p>
+                    </div>
+
+                    <!-- Table Container -->
+                    <div class="overflow-x-auto rounded-2xl border border-gray-100">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-100">
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Applicant</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Class Requested</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Parent Contact</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Apply Date</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight">Status</th>
+                                    <th class="py-3 px-5 text-[10px] font-bold uppercase tracking-wider text-navyLight text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function SettingsPage() {
+            return `
+                <div class="bg-white rounded-3xl card-shadow p-6 md:p-8 space-y-8 animate-fadeIn max-w-3xl">
+                    <!-- Title -->
+                    <div>
+                        <h2 class="text-xl font-bold font-display text-navy leading-tight">System Settings</h2>
+                        <p class="text-xs text-navyLight mt-1">Configure global variables, backups, grading models, and user login controls.</p>
+                    </div>
+
+                    <!-- Settings Form -->
+                    <div class="space-y-6">
+                        <div class="grid sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-2">Active Academic Session</label>
+                                <select id="setting-session" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-navy text-xs font-semibold focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none cursor-pointer">
+                                    <option value="2026-27">2026-27 (Current)</option>
+                                    <option value="2027-28">2027-28</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-2">Session Timeout Duration</label>
+                                <select id="setting-timeout" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-navy text-xs font-semibold focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none cursor-pointer">
+                                    <option value="30m">30 Minutes (Recommended)</option>
+                                    <option value="15m">15 Minutes</option>
+                                    <option value="1h">1 Hour</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-2">Grading Model</label>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-200 text-navy text-xs font-semibold focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none cursor-pointer font-semibold">
+                                    <option>HP Board Standard (Marks/Grades)</option>
+                                    <option>CBSE Unified (CCE CGPA)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-2">Database Hosting Cloud</label>
+                                <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 text-navy text-xs bg-gray-50/70 border-gray-150 outline-none cursor-not-allowed select-all" value="SC-Production-Central-AWS-AP" readonly>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 pt-3">
+                            <h4 class="text-[10px] font-bold uppercase tracking-wider text-navyLight">Automated Backups</h4>
+                            <label class="flex items-center gap-3 cursor-pointer select-none">
+                                <input type="checkbox" checked class="w-4.5 h-4.5 rounded border-gray-300 text-primary focus:ring-primary/20 cursor-pointer">
+                                <span class="text-xs text-navy font-semibold">Enable Nightly Automated Backups to AWS S3 Cloud Bucket</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer select-none">
+                                <input type="checkbox" checked class="w-4.5 h-4.5 rounded border-gray-300 text-primary focus:ring-primary/20 cursor-pointer">
+                                <span class="text-xs text-navy font-semibold">Send Weekly Database Analytics Reports to Admin Email</span>
+                            </label>
+                        </div>
+
+                        <!-- Database Status Banner -->
+                        <div class="p-5 rounded-2xl bg-gray-50 border border-gray-100 flex flex-wrap gap-6 items-center justify-between">
+                            <div class="flex items-center gap-6">
+                                <div>
+                                    <span class="text-[9px] font-bold text-navyLight uppercase tracking-wider block">DB Status</span>
+                                    <span class="text-xs font-bold text-green-600 mt-1 flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block animate-pulse"></span> Connected
+                                    </span>
+                                </div>
+                                <div class="w-[1px] h-6 bg-gray-200"></div>
+                                <div>
+                                    <span class="text-[9px] font-bold text-navyLight uppercase tracking-wider block">Cloud Storage</span>
+                                    <span class="text-xs font-bold text-navy mt-1">94.2 GB Free</span>
+                                </div>
+                                <div class="w-[1px] h-6 bg-gray-200"></div>
+                                <div>
+                                    <span class="text-[9px] font-bold text-navyLight uppercase tracking-wider block">API Gateway</span>
+                                    <span class="text-xs font-bold text-green-600 mt-1">Operational</span>
+                                </div>
+                            </div>
+                            <button onclick="triggerDBBackup()" class="px-4 py-2 border border-gray-200 hover:border-primary/45 rounded-xl text-xs font-bold text-navyLight hover:text-primary transition-all hover:bg-white bg-gray-100/50 shadow-sm">
+                                Backup Now
+                            </button>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-100 flex justify-end gap-3 select-none">
+                            <button onclick="navigateERP('overview')" class="px-5 py-2.5 border border-gray-200 hover:border-primary rounded-xl text-xs font-bold text-navyLight hover:text-primary transition-colors">
+                                Cancel
+                            </button>
+                            <button onclick="saveSettings()" class="px-5 py-2.5 bg-primary hover:bg-[#2F4156] text-white font-bold text-xs rounded-xl shadow-sm transition-colors">
+                                Save System Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Router & View Assembly
+        function ERPModals() {
+            return `
+                <!-- Add Staff Modal -->
+                ${state.showAddStaffModal ? `
+                    <div class="fixed inset-0 z-50 flex items-center justify-center bg-navy/55 backdrop-blur-sm p-4 animate-fadeIn">
+                        <div class="bg-white rounded-3xl card-shadow w-full max-w-md p-6 sm:p-8 space-y-6 relative animate-fadeIn">
+                            <button onclick="closeAddStaffModal()" class="absolute top-4 right-4 text-navyLight hover:text-navy transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                            <div>
+                                <h3 class="font-extrabold text-navy text-lg leading-tight">Register New Faculty</h3>
+                                <p class="text-xs text-navyLight mt-0.5">Add a new profile to the school directory.</p>
+                            </div>
+                            <form id="add-staff-form" onsubmit="submitAddStaff(event)" class="space-y-4">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Staff Name</label>
+                                    <input type="text" required id="staff-name-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" placeholder="e.g. Anil Kumar">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Designation</label>
+                                        <input type="text" required id="staff-desig-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" placeholder="e.g. TGT Social Science">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Category</label>
+                                        <select id="staff-cat-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary cursor-pointer">
+                                            <option value="teaching">Teaching Staff</option>
+                                            <option value="admin">Administrator</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Email Address</label>
+                                    <input type="email" required id="staff-email-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" placeholder="e.g. anil@chamundaviewschool.edu.in">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Mobile Number</label>
+                                    <input type="tel" required id="staff-phone-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" placeholder="e.g. +91 98160 XXXXX">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Joining Date</label>
+                                    <input type="date" required id="staff-date-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary cursor-pointer">
+                                </div>
+                                <div class="pt-3 flex justify-end gap-3">
+                                    <button type="button" onclick="closeAddStaffModal()" class="px-4 py-2 border border-gray-200 hover:border-primary rounded-xl text-xs font-bold text-navyLight hover:text-primary transition-colors">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="px-5 py-2.5 bg-[#567C8D] hover:bg-[#2F4156] text-white font-bold text-xs rounded-xl shadow-sm transition-colors">
+                                        Add Staff Member
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Add Student Modal -->
+                ${state.showAddStudentModal ? `
+                    <div class="fixed inset-0 z-50 flex items-center justify-center bg-navy/55 backdrop-blur-sm p-4 animate-fadeIn">
+                        <div class="bg-white rounded-3xl card-shadow w-full max-w-md p-6 sm:p-8 space-y-6 relative animate-fadeIn">
+                            <button onclick="closeAddStudentModal()" class="absolute top-4 right-4 text-navyLight hover:text-navy transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                            <div>
+                                <h3 class="font-extrabold text-navy text-lg leading-tight">Register Student Profile</h3>
+                                <p class="text-xs text-navyLight mt-0.5">Register student details to the academic list.</p>
+                            </div>
+                            <form id="add-student-form" onsubmit="submitAddStudent(event)" class="space-y-4">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Student Name</label>
+                                    <input type="text" required id="stud-name-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" placeholder="e.g. Ramesh Sharma">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Roll Number</label>
+                                        <input type="text" required id="stud-roll-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" placeholder="e.g. SCH-207">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Class</label>
+                                        <select id="stud-class-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary cursor-pointer font-semibold font-sans">
+                                            <option value="Class VI">Class VI</option>
+                                            <option value="Class VII">Class VII</option>
+                                            <option value="Class VIII">Class VIII</option>
+                                            <option value="Class IX">Class IX</option>
+                                            <option value="Class X">Class X</option>
+                                            <option value="Class XI">Class XI</option>
+                                            <option value="Class XII">Class XII</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Parent / Guardian Name</label>
+                                    <input type="text" required id="stud-parent-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" placeholder="e.g. Vijay Sharma">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Parent Mobile Number</label>
+                                    <input type="tel" required id="stud-phone-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all" placeholder="e.g. +91 98765 XXXXX">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Term 2 Dues Status</label>
+                                    <select id="stud-fee-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary cursor-pointer font-semibold">
+                                        <option value="Pending">Pending Payment</option>
+                                        <option value="Paid">Fully Paid</option>
+                                    </select>
+                                </div>
+                                <div class="pt-3 flex justify-end gap-3">
+                                    <button type="button" onclick="closeAddStudentModal()" class="px-4 py-2 border border-gray-200 hover:border-primary rounded-xl text-xs font-bold text-navyLight hover:text-primary transition-colors">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="px-5 py-2.5 bg-[#567C8D] hover:bg-[#2F4156] text-white font-bold text-xs rounded-xl shadow-sm transition-colors">
+                                        Register Student
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Record Payment Modal -->
+                ${state.showRecordPaymentModal ? `
+                    <div class="fixed inset-0 z-50 flex items-center justify-center bg-navy/55 backdrop-blur-sm p-4 animate-fadeIn">
+                        <div class="bg-white rounded-3xl card-shadow w-full max-w-md p-6 sm:p-8 space-y-6 relative animate-fadeIn">
+                            <button onclick="closeRecordPaymentModal()" class="absolute top-4 right-4 text-navyLight hover:text-navy transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                            <div>
+                                <h3 class="font-extrabold text-navy text-lg leading-tight">Record Tuition Payment</h3>
+                                <p class="text-xs text-navyLight mt-0.5">Log outstanding monthly tuition fees collection receipt.</p>
+                            </div>
+                            <form id="record-payment-form" onsubmit="submitRecordPayment(event)" class="space-y-4">
+                                <div class="p-3 bg-gray-50 border border-gray-100 rounded-xl space-y-1">
+                                    <div class="text-[10px] text-navyLight/60 font-bold uppercase tracking-wider">Student Details</div>
+                                    <div class="text-xs font-bold text-navy">${state.selectedPaymentStudent ? state.selectedPaymentStudent.name : ''} (${state.selectedPaymentStudent ? state.selectedPaymentStudent.rollNo : ''})</div>
+                                    <div class="text-[10px] text-navyLight">${state.selectedPaymentStudent ? state.selectedPaymentStudent.className : ''} | Parent: ${state.selectedPaymentStudent ? state.selectedPaymentStudent.parent : ''}</div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Tuition Due Amount (INR)</label>
+                                    <input type="text" class="w-full px-3 py-2.5 rounded-xl border border-gray-150 bg-gray-50 text-navy text-xs outline-none font-bold select-all cursor-not-allowed" value="₹ 2,200" readonly>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Payment Method</label>
+                                        <select id="payment-method-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary cursor-pointer font-semibold font-sans">
+                                            <option value="UPI">UPI (GPay / PhonePe)</option>
+                                            <option value="Cash">Cash Receipt</option>
+                                            <option value="Net Banking">Net Banking</option>
+                                            <option value="Credit / Debit Card">Credit / Debit Card</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold uppercase tracking-wider text-navyLight mb-1.5">Receipt Date</label>
+                                        <input type="date" required id="payment-date-input" class="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-navy text-xs outline-none focus:border-primary cursor-pointer">
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-3 flex justify-end gap-3">
+                                    <button type="button" onclick="closeRecordPaymentModal()" class="px-4 py-2 border border-gray-200 hover:border-primary rounded-xl text-xs font-bold text-navyLight hover:text-primary transition-colors">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold text-xs rounded-xl shadow-sm transition-colors">
+                                        Confirm Receipt
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function renderERP() {
+            const root = document.getElementById('erp-app');
+            let contentHTML = '';
+            
+            switch (state.currentPage) {
+                case 'overview':
+                    contentHTML = OverviewPage();
+                    break;
+                case 'staff':
+                    contentHTML = StaffPage();
+                    break;
+                case 'students':
+                    contentHTML = StudentsPage();
+                    break;
+                case 'fees':
+                    contentHTML = FeesPage();
+                    break;
+                case 'transport':
+                    contentHTML = TransportPage();
+                    break;
+                case 'admissions':
+                    contentHTML = AdmissionsERPPage();
+                    break;
+                case 'settings':
+                    contentHTML = SettingsPage();
+                    break;
+                default:
+                    contentHTML = `<div class="p-6 text-center text-xs font-bold text-navyLight/60">Module ${state.currentPage} under development.</div>`;
+            }
+
+            root.innerHTML = `
+                <!-- Main Header Navigation -->
+                ${ERPHeader()}
+                
+                <div class="flex-1 flex pt-16">
+                    <!-- Navigation Sidebar Drawer -->
+                    ${ERPSidebar()}
+                    
+                    <!-- Core Content Main Container -->
+                    <main class="flex-1 lg:pl-64 p-4 sm:p-6 md:p-8 min-w-0 min-h-[calc(100vh-64px)] pt-32 lg:pt-8 bg-softGray">
+                        <div class="max-w-7xl mx-auto space-y-6">
+                            <!-- Page Title Banner (Dynamic) -->
+                            <div class="flex items-center justify-between border-b border-gray-200 pb-4 hidden lg:flex">
+                                <div>
+                                    <span class="text-[9px] font-bold text-primary uppercase tracking-widest block">System Workspace</span>
+                                    <h1 class="text-2xl font-extrabold text-navy font-display mt-0.5 capitalize">${state.currentPage.replace('-', ' ')} Portal</h1>
+                                </div>
+                                <div class="text-[10px] text-navyLight font-semibold bg-white border border-gray-200 rounded-xl px-3 py-1.5 shadow-sm">
+                                    Session: 2026-27 (HP State Board)
+                                </div>
+                            </div>
+                            
+                            <!-- Dynamic Content Render Area -->
+                            ${contentHTML}
+                        </div>
+                    </main>
+                </div>
+                
+                <!-- Dialog Modal Overlays -->
+                ${ERPModals()}
+            `;
+        }
+
+        // Initialize App immediately since script is at the bottom of the body
+        renderERP();
+        showToast('Welcome back, Chetan Singh! Database synchronization complete.');
+    </script>
+</body>
+</html>
