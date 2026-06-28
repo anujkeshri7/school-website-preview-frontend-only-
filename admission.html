@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Senior Secondary School Admission Form</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & Noto Sans Devanagari for Hindi -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#E8F5E9',
+              100: '#C8E6C9',
+              200: '#A5D6A7',
+              500: '#1F9553', // Primary Accent
+              600: '#198043',
+              700: '#136B35',
+              900: '#0B3F1D',
+            },
+            neutral: {
+              50: '#F9FBF9', // Soft off-white
+              900: '#1E293B',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            hindi: ['Noto Sans Devanagari', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F4F7F5;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .step-transition {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    /* Custom scrollbar for beautiful table and layout */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1F9553;
+      border-radius: 3px;
+    }
+    /* Form Focus Highlight */
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #1F9553 !important;
+      box-shadow: 0 0 0 3px rgba(31, 149, 83, 0.2) !important;
+    }
+  </style>
+</head>
+<body class="text-neutral-900 min-h-screen flex flex-col justify-between antialiased">
+
+  <!-- Header Banner -->
+  <header class="bg-white border-b border-brand-100 py-4 px-6 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-brand-50 p-2.5 rounded-xl border border-brand-200">
+          <i class="fa-solid fa-school text-brand-500 text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-neutral-900">Greenwood Senior Secondary School</h1>
+          <p class="text-xs text-neutral-500 font-medium">Affiliated to National &amp; State Boards • Admission Portal</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 bg-brand-50 border border-brand-200 px-3 py-1.5 rounded-full text-xs font-semibold text-brand-700">
+        <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+        Academic Year 2024-2025
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Form Container -->
+  <main class="max-w-6xl w-full mx-auto p-4 sm:p-6 md:p-8 flex-grow">
+    
+    <!-- Multi-Step Progress Tracker (Desktop & Mobile Modes) -->
+    <div class="bg-white rounded-2xl shadow-sm border border-brand-100 p-6 mb-8">
+      <!-- Desktop Stepper -->
+      <div class="hidden md:flex justify-between items-center relative">
+        <!-- Connecting Line -->
+        <div class="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-gray-100 -z-0">
+          <div id="progress-bar-line" class="h-full bg-brand-500 transition-all duration-300" style="width: 0%;"></div>
+        </div>
+        
+        <!-- Steps -->
+        <div class="step-node z-10 flex flex-col items-center group cursor-pointer" onclick="goToStep(1)">
+          <div class="step-num w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-brand-500 text-white shadow-md border-4 border-white transition-all duration-200" id="step-circle-1">1</div>
+          <span class="text-xs font-semibold mt-2 text-brand-700" id="step-label-1">Stream &amp; Class</span>
+        </div>
+        <div class="step-node z-10 flex flex-col items-center group cursor-pointer" onclick="goToStep(2)">
+          <div class="step-num w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-gray-200 text-gray-500 border-4 border-white transition-all duration-200" id="step-circle-2">2</div>
+          <span class="text-xs font-medium mt-2 text-gray-400" id="step-label-2">Personal Details</span>
+        </div>
+        <div class="step-node z-10 flex flex-col items-center group cursor-pointer" onclick="goToStep(3)">
+          <div class="step-num w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-gray-200 text-gray-500 border-4 border-white transition-all duration-200" id="step-circle-3">3</div>
+          <span class="text-xs font-medium mt-2 text-gray-400" id="step-label-3">Address &amp; Bank</span>
+        </div>
+        <div class="step-node z-10 flex flex-col items-center group cursor-pointer" onclick="goToStep(4)">
+          <div class="step-num w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-gray-200 text-gray-500 border-4 border-white transition-all duration-200" id="step-circle-4">4</div>
+          <span class="text-xs font-medium mt-2 text-gray-400" id="step-label-4">Academic History</span>
+        </div>
+        <div class="step-node z-10 flex flex-col items-center group cursor-pointer" onclick="goToStep(5)">
+          <div class="step-num w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-gray-200 text-gray-500 border-4 border-white transition-all duration-200" id="step-circle-5">5</div>
+          <span class="text-xs font-medium mt-2 text-gray-400" id="step-label-5">Documents &amp; Extra</span>
+        </div>
+        <div class="step-node z-10 flex flex-col items-center group cursor-pointer" onclick="goToStep(6)">
+          <div class="step-num w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-gray-200 text-gray-500 border-4 border-white transition-all duration-200" id="step-circle-6">6</div>
+          <span class="text-xs font-medium mt-2 text-gray-400" id="step-label-6">Review &amp; Submit</span>
+        </div>
+      </div>
+
+      <!-- Mobile Stepper Information -->
+      <div class="md:hidden flex items-center justify-between">
+        <div>
+          <p class="text-xs font-bold text-brand-600 uppercase tracking-wider" id="mobile-step-prefix">Step 1 of 6</p>
+          <h2 class="text-lg font-extrabold text-neutral-900" id="mobile-step-title">Stream &amp; Class Selection</h2>
+        </div>
+        <div class="flex items-center gap-1 bg-brand-50 border border-brand-200 px-3 py-1.5 rounded-xl">
+          <i class="fa-solid fa-list-check text-brand-500"></i>
+          <span class="text-xs font-bold text-brand-700" id="mobile-step-percent">16%</span>
+        </div>
+      </div>
+      <!-- Mobile Progress Bar Line -->
+      <div class="md:hidden w-full bg-gray-100 h-2 rounded-full mt-3 overflow-hidden">
+        <div id="progress-bar-mobile" class="bg-brand-500 h-full transition-all duration-300" style="width: 16%;"></div>
+      </div>
+    </div>
+
+    <!-- Alert Banner Container for validation messages -->
+    <div id="validation-alert" class="hidden mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3.5 rounded-xl flex items-start gap-3 shadow-sm">
+      <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5 text-lg"></i>
+      <div>
+        <p class="font-bold text-sm">Please correct the following errors before moving forward:</p>
+        <ul class="list-disc pl-4 text-xs mt-1 space-y-1" id="validation-errors-list"></ul>
+      </div>
+    </div>
+
+    <!-- MAIN FORM WRAPPER -->
+    <form id="admission-form" autocomplete="off" onsubmit="return false;">
+      
+      <!-- ========================================== -->
+      <!-- STEP 1: STUDENT & STREAM SELECTION         -->
+      <!-- ========================================== -->
+      <div id="step-panel-1" class="step-transition">
+        <div class="bg-white rounded-2xl shadow-sm border border-brand-100 p-6 sm:p-8">
+          <div class="border-b border-gray-100 pb-4 mb-6">
+            <h2 class="text-xl sm:text-2xl font-extrabold text-neutral-900 flex items-center gap-2.5">
+              <span class="bg-brand-50 text-brand-600 p-1.5 rounded-lg text-sm sm:text-base"><i class="fa-solid fa-graduation-cap"></i></span>
+              Student &amp; Stream Selection
+            </h2>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">Select your desired class, stream and core elective subjects for admission.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Col 1: Photo Upload (Avatar Placeholder) -->
+            <div class="lg:col-span-1 flex flex-col items-center justify-start text-center border-b lg:border-b-0 lg:border-r border-gray-100 pb-6 lg:pb-0 lg:pr-6">
+              <label class="block text-sm font-bold text-neutral-900 mb-3">Student Photograph *</label>
+              <div class="relative w-36 h-36 rounded-2xl overflow-hidden border-2 border-dashed border-brand-200 bg-brand-50/50 flex flex-col items-center justify-center group hover:border-brand-500 transition-colors duration-200 cursor-pointer">
+                <input type="file" id="student-photo" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onchange="previewPhoto(event)">
+                <img id="photo-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256" class="w-full h-full object-cover hidden">
+                <div id="upload-placeholder" class="flex flex-col items-center justify-center p-3">
+                  <i class="fa-solid fa-camera-retro text-brand-500 text-3xl mb-2 group-hover:scale-110 transition-transform"></i>
+                  <span class="text-xs font-semibold text-brand-700">Upload Photo</span>
+                  <span class="text-[10px] text-gray-400 mt-1">JPG, PNG up to 2MB</span>
+                </div>
+              </div>
+              <p class="text-[11px] text-gray-500 mt-3 max-w-[180px]">Please upload a recent formal passport-sized photograph.</p>
+            </div>
+
+            <!-- Col 2: Inputs & Selections -->
+            <div class="lg:col-span-3 space-y-6">
+              <!-- Class & Stream Select -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Class Selection -->
+                <div>
+                  <span class="block text-sm font-bold text-neutral-900 mb-3">Apply for Class *</span>
+                  <div class="grid grid-cols-2 gap-4">
+                    <label class="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all duration-200 min-h-[44px]">
+                      <span class="text-sm font-bold text-gray-700">Class 11</span>
+                      <input type="radio" name="target_class" value="11" checked class="w-4 h-4 text-brand-500 border-gray-300 focus:ring-brand-500">
+                    </label>
+                    <label class="flex items-center justify-between p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all duration-200 min-h-[44px]">
+                      <span class="text-sm font-bold text-gray-700">Class 12</span>
+                      <input type="radio" name="target_class" value="12" class="w-4 h-4 text-brand-500 border-gray-300 focus:ring-brand-500">
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Stream Selection -->
+                <div>
+                  <span class="block text-sm font-bold text-neutral-900 mb-3">Select Stream *</span>
+                  <div class="grid grid-cols-3 gap-3">
+                    <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all duration-200 min-h-[44px]">
+                      <input type="radio" name="stream" value="Science" checked class="mb-2 text-brand-500 border-gray-300 focus:ring-brand-500" onchange="handleStreamChange()">
+                      <span class="text-xs font-bold text-gray-700">Science</span>
+                    </label>
+                    <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all duration-200 min-h-[44px]">
+                      <input type="radio" name="stream" value="Commerce" class="mb-2 text-brand-500 border-gray-300 focus:ring-brand-500" onchange="handleStreamChange()">
+                      <span class="text-xs font-bold text-gray-700">Commerce</span>
+                    </label>
+                    <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:bg-brand-50/30 cursor-pointer transition-all duration-200 min-h-[44px]">
+                      <input type="radio" name="stream" value="Arts" class="mb-2 text-brand-500 border-gray-300 focus:ring-brand-500" onchange="handleStreamChange()">
+                      <span class="text-xs font-bold text-gray-700">Arts</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Subject Configuration -->
+              <div class="bg-brand-50/30 p-5 rounded-2xl border border-brand-100">
+                <h3 class="text-sm font-bold text-brand-900 mb-4 flex items-center gap-2">
+                  <i class="fa-solid fa-book-bookmark text-brand-500"></i> Subject Combinations
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <!-- Compulsory Core -->
+                  <div>
+                    <label class="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">Compulsory Language</label>
+                    <div class="p-3 bg-white border border-gray-200 rounded-xl flex items-center justify-between">
+                      <span class="text-sm font-semibold text-gray-700">English (Core)</span>
+                      <span class="text-[10px] font-bold text-brand-600 bg-brand-100/60 px-2 py-0.5 rounded-full">Mandatory</span>
+                    </div>
+                  </div>
+                  <!-- Elective List -->
+                  <div>
+                    <label class="block text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">Select Electives (Pick 4) *</label>
+                    <div class="grid grid-cols-1 gap-2" id="electives-container">
+                      <!-- Populated dynamically via JS -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Provisional Status Toggle -->
+              <div class="border-t border-gray-100 pt-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-brand-50/40 p-4 rounded-xl border border-brand-100">
+                  <div>
+                    <span class="block text-sm font-bold text-neutral-900">Provisional Admission Status</span>
+                    <p class="text-xs text-gray-500">Enable this if your previous board class results have not yet been declared.</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="provisional-toggle" class="sr-only peer" onchange="toggleProvisionalField()">
+                      <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-500"></div>
+                    </label>
+                    <span class="text-xs font-bold text-brand-700" id="provisional-label">Regular</span>
+                  </div>
+                </div>
+
+                <div id="provisional-input-container" class="hidden mt-4">
+                  <label class="block text-xs font-bold text-neutral-700 mb-2">Provisional / Admit Card Roll Number *</label>
+                  <input type="text" id="provisional-roll-no" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-brand-500" placeholder="Enter previous class roll number for verification">
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- STEP 2: PERSONAL INFORMATION               -->
+      <!-- ========================================== -->
+      <div id="step-panel-2" class="step-transition hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-brand-100 p-6 sm:p-8">
+          <div class="border-b border-gray-100 pb-4 mb-6">
+            <h2 class="text-xl sm:text-2xl font-extrabold text-neutral-900 flex items-center gap-2.5">
+              <span class="bg-brand-50 text-brand-600 p-1.5 rounded-lg text-sm sm:text-base"><i class="fa-solid fa-user-check"></i></span>
+              Personal Information
+            </h2>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">Ensure student identity matches national registration documents.</p>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Student Names & DOB -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label class="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">Student Name (English) *</label>
+                <input type="text" id="student-name-en" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-brand-500 font-semibold" placeholder="ENTER IN BLOCK LETTERS" oninput="this.value = this.value.toUpperCase()">
+                <p class="text-[10px] text-gray-400 mt-1">Must strictly match Matriculation Certificate.</p>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">Student Name (Hindi) *</label>
+                <input type="text" id="student-name-hi" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-brand-500 font-hindi" placeholder="छात्र का नाम (हिंदी में)">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">Date of Birth *</label>
+                <input type="date" id="student-dob" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-brand-500">
+              </div>
+            </div>
+
+            <!-- Identity and National Numbers -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">Aadhaar Number *</label>
+                <input type="text" id="student-aadhaar" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-brand-500" placeholder="12-digit UID Number" maxlength="12" oninput="this.value = this.value.replace(/\D/g, '')">
+                <p class="text-[10px] text-gray-400 mt-1">12-digit alphanumeric card registration identification.</p>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">UDISE Number (If Applicable)</label>
+                <input type="text" id="student-udise" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-brand-500" placeholder="Unified District Information System for Education ID" maxlength="11" oninput="this.value = this.value.replace(/\D/g, '')">
+              </div>
+            </div>
+
+            <!-- Parents & Guardians Information -->
+            <div class="border-t border-gray-100 pt-6">
+              <h3 class="text-sm font-bold text-brand-900 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-users text-brand-500"></i> Family &amp; Parent Details
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Father's Info -->
+                <div class="p-4 bg-brand-50/20 border border-brand-100 rounded-xl space-y-3">
+                  <label class="block text-xs font-bold text-brand-800 uppercase tracking-wider">Father's Information *</label>
+                  <input type="text" id="father-name" class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-brand-500" placeholder="Father's Full Name">
+                  <input type="tel" id="father-mobile" class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-brand-500" placeholder="Mobile Number" maxlength="10" oninput="this.value = this.value.replace(/\D/g, '')">
+                </div>
+                <!-- Mother's Info -->
+                <div class="p-4 bg-brand-50/20 border border-brand-100 rounded-xl space-y-3">
+                  <label class="block text-xs font-bold text-brand-800 uppercase tracking-wider">Mother's Information *</label>
+                  <input type="text" id="mother-name" class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-brand-500" placeholder="Mother's Full Name">
+                  <input type="tel" id="mother-mobile" class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-brand-500" placeholder="Mobile Number" maxlength="10" oninput="this.value = this.value.replace(/\D/g, '')">
+                </div>
+                <!-- Guardian's Info -->
+                <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3">
+                  <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Guardian's Information (Optional)</label>
+                  <input type="text" id="guardian-name" class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-brand-500" placeholder="Guardian's Full Name">
+                  <input type="tel" id="guardian-mobile" class="w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:border-brand-500" placeholder="Mobile Number" maxlength="10" oninput="this.value = this.value.replace(/\D/g, '')">
+                </div>
+              </div>
+            </div>
+
+            <!-- Category and Financial Status -->
+            <div class="border-t border-gray-100 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Category and IRDP -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">Social Category *</label>
+                  <select id="category" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-brand-500">
+                    <option value="">-- Choose Option --</option>
+                    <option value="General">General</option>
+                    <option value="SC">SC (Scheduled Caste)</option>
+                    <option value="ST">ST (Scheduled Tribe)</option>
+                    <option value="OBC">OBC (Other Backward Class)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">IRDP / BPL Status *</label>
+                  <div class="grid grid-cols-2 gap-2 mt-1">
+                    <label class="flex items-center justify-center p-2.5 rounded-xl border border-gray-200 bg-white hover:border-brand-500 cursor-pointer min-h-[44px]">
+                      <input type="radio" name="irdp_status" value="Yes" class="mr-2 text-brand-500"> Yes
+                    </label>
+                    <label class="flex items-center justify-center p-2.5 rounded-xl border border-gray-200 bg-white hover:border-brand-500 cursor-pointer min-h-[44px]">
+                      <input type="radio" name="irdp_status" value="No" checked class="mr-2 text-brand-500"> No
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Parent Occupation & Income -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">Parent/Guardian Occupation *</label>
+                  <input type="text" id="parent-occupation" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-brand-500" placeholder="e.g., Agriculture, Business, Govt Service">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">Annual Household Income *</label>
+                  <div class="relative">
+                    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">₹</span>
+                    <input type="number" id="annual-income" class="w-full bg-white border border-gray-200 rounded-xl pl-8 pr-4 py-3 text-sm focus:border-brand-500" placeholder="Total annual earnings">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- STEP 3: ADDRESS & BANKING DETAILS          -->
+      <!-- ========================================== -->
+      <div id="step-panel-3" class="step-transition hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-brand-100 p-6 sm:p-8">
+          <div class="border-b border-gray-100 pb-4 mb-6">
+            <h2 class="text-xl sm:text-2xl font-extrabold text-neutral-900 flex items-center gap-2.5">
+              <span class="bg-brand-50 text-brand-600 p-1.5 rounded-lg text-sm sm:text-base"><i class="fa-solid fa-map-location-dot"></i></span>
+              Address &amp; Banking Details
+            </h2>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">Specify permanent address for postal communications &amp; institutional banking records.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Part A: Permanent Address -->
+            <div class="space-y-4">
+              <h3 class="text-sm font-bold text-brand-900 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-house-chimney text-brand-500"></i> Permanent Residential Address
+              </h3>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                  <label class="block text-xs font-bold text-neutral-700 mb-1.5">Village / House No. / Street *</label>
+                  <input type="text" id="addr-village" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-500" placeholder="Village or Local Area Name">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-1.5">Post Office *</label>
+                  <input type="text" id="addr-po" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-500" placeholder="P.O. Name">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-1.5">Tehsil *</label>
+                  <input type="text" id="addr-tehsil" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-500" placeholder="Tehsil / Sub-district">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-1.5">District *</label>
+                  <input type="text" id="addr-district" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-500" placeholder="District Name">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-1.5">State *</label>
+                  <select id="addr-state" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-500">
+                    <option value="Himachal Pradesh">Himachal Pradesh</option>
+                    <option value="Punjab">Punjab</option>
+                    <option value="Haryana">Haryana</option>
+                    <option value="Uttarakhand">Uttarakhand</option>
+                    <option value="Delhi">Delhi</option>
+                  </select>
+                </div>
+                <div class="col-span-2">
+                  <label class="block text-xs font-bold text-neutral-700 mb-1.5">Postal PIN Code *</label>
+                  <input type="text" id="addr-pin" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-500" placeholder="6-digit ZIP code" maxlength="6" oninput="this.value = this.value.replace(/\D/g, '')">
+                </div>
+              </div>
+            </div>
+
+            <!-- Part B: Banking Details -->
+            <div class="space-y-4 border-t lg:border-t-0 lg:border-l border-gray-100 lg:pl-8">
+              <h3 class="text-sm font-bold text-brand-900 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-piggy-bank text-brand-500"></i> Student/Parent Bank Details (For Scholarships)
+              </h3>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-1.5">Bank Account Number *</label>
+                  <input type="password" id="bank-acc-no" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-500 font-mono" placeholder="Ex: 34182901923" oninput="this.value = this.value.replace(/\D/g, '')">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-1.5">Confirm Bank Account Number *</label>
+                  <input type="text" id="bank-acc-no-confirm" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-500 font-mono" placeholder="Retype Account Number" onpaste="return false;" oninput="this.value = this.value.replace(/\D/g, '')">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-neutral-700 mb-1.5">Bank Name &amp; Branch Name *</label>
+                  <input type="text" id="bank-name-branch" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-500" placeholder="State Bank of India - Main Branch">
+                </div>
+                <div class="relative group">
+                  <div class="flex justify-between items-center mb-1.5">
+                    <label class="block text-xs font-bold text-neutral-700">IFSC Code *</label>
+                    <span class="text-[10px] text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full cursor-help relative inline-block">
+                      <i class="fa-solid fa-circle-info"></i> Tooltip
+                      <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 hidden group-hover:block bg-neutral-900 text-white text-[10px] p-2 rounded-lg leading-relaxed shadow-lg z-50">
+                        IFSC is an 11-character alphanumeric code starting with 4 alphabetic letters, then a 0, and 6 bank identifiers.
+                      </span>
+                    </span>
+                  </div>
+                  <input type="text" id="bank-ifsc" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:border-brand-500 font-mono uppercase" placeholder="SBIN0001234" maxlength="11">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- STEP 4: ACADEMIC RECORD                    -->
+      <!-- ========================================== -->
+      <div id="step-panel-4" class="step-transition hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-brand-100 p-6 sm:p-8">
+          <div class="border-b border-gray-100 pb-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-neutral-900 flex items-center gap-2.5">
+                <span class="bg-brand-50 text-brand-600 p-1.5 rounded-lg text-sm sm:text-base"><i class="fa-solid fa-award"></i></span>
+                Academic History Record
+              </h2>
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">Add details of previous board examinations (such as 10th/Matriculation or 11th class).</p>
+            </div>
+            <button type="button" onclick="addAcademicRow()" class="bg-brand-500 hover:bg-brand-600 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all duration-150 inline-flex items-center gap-2 min-h-[44px]">
+              <i class="fa-solid fa-plus"></i> Add Examination Row
+            </button>
+          </div>
+
+          <!-- Academic Table Wrapper -->
+          <div class="overflow-x-auto border border-gray-100 rounded-xl shadow-inner bg-neutral-50 p-2">
+            <table class="w-full min-w-[1000px] text-left border-collapse" id="academic-table">
+              <thead>
+                <tr class="text-xs font-extrabold uppercase tracking-wider text-neutral-500 border-b border-gray-200">
+                  <th class="py-3 px-4 w-1/12">Exam Name</th>
+                  <th class="py-3 px-4 w-1/12">Passing Year</th>
+                  <th class="py-3 px-4 w-2/12">School Institution</th>
+                  <th class="py-3 px-4 w-2/12">Board Name</th>
+                  <th class="py-3 px-4 w-1/12">Roll Number</th>
+                  <th class="py-3 px-4 w-1/12">Result</th>
+                  <th class="py-3 px-4 w-1/12">Max Marks</th>
+                  <th class="py-3 px-4 w-1/12">Marks Obtained</th>
+                  <th class="py-3 px-4 w-1/12">Percentage</th>
+                  <th class="py-3 px-4 w-[50px] text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="academic-rows-container">
+                <!-- Row 1 Default (Matriculation) -->
+                <tr class="border-b border-white bg-white hover:bg-brand-50/10 transition-colors">
+                  <td class="py-3 px-2">
+                    <select class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-brand-500 row-exam-name">
+                      <option value="Matriculation/10th">Matric / 10th</option>
+                      <option value="11th Class">11th Class</option>
+                    </select>
+                  </td>
+                  <td class="py-3 px-2">
+                    <input type="text" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center row-passing-year" placeholder="YYYY" maxlength="4" oninput="this.value = this.value.replace(/\D/g, '')">
+                  </td>
+                  <td class="py-3 px-2">
+                    <input type="text" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs row-school" placeholder="School Name">
+                  </td>
+                  <td class="py-3 px-2">
+                    <input type="text" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs row-board" placeholder="Ex: CBSE/HPBOSE">
+                  </td>
+                  <td class="py-3 px-2">
+                    <input type="text" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center row-roll" placeholder="Roll No">
+                  </td>
+                  <td class="py-3 px-2">
+                    <select class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs row-result">
+                      <option value="Pass">Pass</option>
+                      <option value="Awaited">Awaited</option>
+                    </select>
+                  </td>
+                  <td class="py-3 px-2">
+                    <input type="number" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center row-max-marks" placeholder="Max" oninput="calculateRowPercentage(this)">
+                  </td>
+                  <td class="py-3 px-2">
+                    <input type="number" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center row-marks-obtained" placeholder="Marks" oninput="calculateRowPercentage(this)">
+                  </td>
+                  <td class="py-3 px-2">
+                    <input type="text" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center font-bold text-brand-600 row-percent" placeholder="%" readonly>
+                  </td>
+                  <td class="py-3 px-2 text-center">
+                    <button type="button" class="text-gray-300 hover:text-red-500 transition-colors p-1" onclick="removeAcademicRow(this)">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- STEP 5: EXTRACURRICULAR & DECLARATION      -->
+      <!-- ========================================== -->
+      <div id="step-panel-5" class="step-transition hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-brand-100 p-6 sm:p-8">
+          <div class="border-b border-gray-100 pb-4 mb-6">
+            <h2 class="text-xl sm:text-2xl font-extrabold text-neutral-900 flex items-center gap-2.5">
+              <span class="bg-brand-50 text-brand-600 p-1.5 rounded-lg text-sm sm:text-base"><i class="fa-solid fa-list-check"></i></span>
+              Documents &amp; Declaration
+            </h2>
+            <p class="text-xs sm:text-sm text-gray-500 mt-1">Upload verified academic records and self-verify the mandatory legal admission conditions.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Side: Document Checkbox List & Upload Actions -->
+            <div>
+              <h3 class="text-sm font-bold text-brand-900 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up text-brand-500"></i> Supported Document Checklist
+              </h3>
+              <div class="space-y-3 bg-brand-50/30 p-5 rounded-2xl border border-brand-100">
+                <label class="flex items-start gap-3 p-3.5 bg-white rounded-xl border border-gray-100 cursor-pointer hover:border-brand-300">
+                  <input type="checkbox" id="doc-slc" class="mt-1 text-brand-500 rounded border-gray-300">
+                  <div>
+                    <span class="text-xs font-bold text-neutral-800 block">Original School Leaving Certificate (SLC)</span>
+                    <p class="text-[10px] text-gray-400">Must be verified and signed by the previous Principal/Headmaster.</p>
+                  </div>
+                </label>
+                <label class="flex items-start gap-3 p-3.5 bg-white rounded-xl border border-gray-100 cursor-pointer hover:border-brand-300">
+                  <input type="checkbox" id="doc-prev-result" class="mt-1 text-brand-500 rounded border-gray-300">
+                  <div>
+                    <span class="text-xs font-bold text-neutral-800 block">Previous Class Marksheet / Report Card</span>
+                    <p class="text-[10px] text-gray-400">Photocopy attested or original download from board database.</p>
+                  </div>
+                </label>
+                <label class="flex items-start gap-3 p-3.5 bg-white rounded-xl border border-gray-100 cursor-pointer hover:border-brand-300">
+                  <input type="checkbox" id="doc-char" class="mt-1 text-brand-500 rounded border-gray-300">
+                  <div>
+                    <span class="text-xs font-bold text-neutral-800 block">Character Certificate</span>
+                    <p class="text-[10px] text-gray-400">Issued by previous institution within past 6 months.</p>
+                  </div>
+                </label>
+                <label class="flex items-start gap-3 p-3.5 bg-white rounded-xl border border-gray-100 cursor-pointer hover:border-brand-300">
+                  <input type="checkbox" id="doc-category" class="mt-1 text-brand-500 rounded border-gray-300">
+                  <div>
+                    <span class="text-xs font-bold text-neutral-800 block">Category Certificate (SC/ST/OBC/IRDP)</span>
+                    <p class="text-[10px] text-gray-400">If applying under reserved seats or scholarship assistance.</p>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Extra Activities & Sports -->
+              <div class="mt-6">
+                <label class="block text-xs font-bold text-neutral-700 mb-2 uppercase tracking-wider">Extracurricular Achievements &amp; Sports Level</label>
+                <textarea id="extra-activities" rows="3" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:border-brand-500" placeholder="Mention activities, achievements, or certification level (District, State, National level)"></textarea>
+              </div>
+            </div>
+
+            <!-- Right Side: School Regulations & Signature -->
+            <div class="space-y-6">
+              <h3 class="text-sm font-bold text-brand-900 flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-brand-500"></i> Rules, Regulations &amp; Declaration
+              </h3>
+              
+              <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-xs space-y-2 leading-relaxed text-gray-600 max-h-[180px] overflow-y-auto">
+                <p class="font-bold text-neutral-950">Declaration Terms &amp; Conditions:</p>
+                <p>1. I hereby declare that all entries in this online application form are correct to the best of my knowledge and belief.</p>
+                <p>2. I solemnly pledge to strictly abide by the rules, code of conduct, and directives of the School Board.</p>
+                <p>3. I maintain that I shall not engage in any activity that promotes intoxication, substance abuse, ragging, or anti-social behaviour inside or outside school premises.</p>
+                <p>4. I understand that any false documentation or misrepresentation can lead to immediate cancellation of admission without refund of fee.</p>
+              </div>
+
+              <label class="flex items-start gap-2.5 cursor-pointer">
+                <input type="checkbox" id="terms-accept" class="mt-1 text-brand-500 rounded border-gray-300 focus:ring-brand-500">
+                <span class="text-xs font-semibold text-neutral-800">I have read, understood, and accept all the terms, school conditions, rules &amp; regulations listed above. *</span>
+              </label>
+
+              <!-- Signature Pad / Typed Signature verification -->
+              <div class="border-t border-gray-100 pt-6">
+                <label class="block text-xs font-bold text-neutral-700 mb-3 uppercase tracking-wider">E-Signature Verification Pad</label>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-[11px] text-gray-500 mb-1.5">Typed Student Full Name *</label>
+                    <input type="text" id="signature-student" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:border-brand-500 font-mono" placeholder="Student Signature">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] text-gray-500 mb-1.5">Typed Parent/Guardian Full Name *</label>
+                    <input type="text" id="signature-parent" class="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs focus:border-brand-500 font-mono" placeholder="Parent Signature">
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- STEP 6: REVIEW & SUBMIT                    -->
+      <!-- ========================================== -->
+      <div id="step-panel-6" class="step-transition hidden">
+        <!-- Success Modal (shown after correct submission) -->
+        <div id="success-state" class="hidden text-center py-12 px-6 bg-white rounded-2xl shadow-sm border border-brand-100 space-y-4">
+          <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-brand-50 border border-brand-200 mb-4 animate-bounce">
+            <i class="fa-solid fa-circle-check text-brand-500 text-5xl"></i>
+          </div>
+          <h2 class="text-2xl font-black text-neutral-900 tracking-tight">Admission Registration Submitted!</h2>
+          <p class="text-sm text-gray-500 max-w-md mx-auto">Your Greenwood Senior Secondary School application is under review. An SMS and Email with reference number have been dispatched to registered numbers.</p>
+          <div class="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+            <button type="button" onclick="window.print()" class="bg-brand-50 border border-brand-200 hover:bg-brand-100 text-brand-700 font-bold text-xs px-5 py-3 rounded-xl transition-all duration-150 inline-flex items-center gap-2 min-h-[44px]">
+              <i class="fa-solid fa-print"></i> Print Receipt PDF
+            </button>
+            <button type="button" onclick="resetForm()" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md transition-all duration-150 min-h-[44px]">
+              Register New Candidate
+            </button>
+          </div>
+        </div>
+
+        <!-- Normal Summary Panel -->
+        <div id="summary-container" class="space-y-6">
+          <div class="bg-white rounded-2xl shadow-sm border border-brand-100 p-6 sm:p-8">
+            <div class="border-b border-gray-100 pb-4 mb-6">
+              <h2 class="text-xl sm:text-2xl font-extrabold text-neutral-900 flex items-center gap-2.5">
+                <span class="bg-brand-50 text-brand-600 p-1.5 rounded-lg text-sm sm:text-base"><i class="fa-solid fa-id-card-clip"></i></span>
+                Application Registration Summary
+              </h2>
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">Carefully read over your entries. Incorrect records may delay admissions verification.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              <!-- Quick Overview Card -->
+              <div class="bg-neutral-50 rounded-2xl border border-gray-200 p-5 flex flex-col items-center text-center">
+                <img id="summary-photo" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256" class="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-md mb-3">
+                <h3 class="text-base font-extrabold text-neutral-900" id="summary-full-name">STUDENT NAME</h3>
+                <span class="text-xs font-bold text-brand-700 bg-brand-50 border border-brand-200 px-3 py-1 rounded-full mt-2" id="summary-applied-class-stream">Class 11 - Science</span>
+                
+                <div class="w-full border-t border-dashed border-gray-200 my-4"></div>
+
+                <div class="w-full space-y-2.5 text-left text-xs">
+                  <div class="flex justify-between"><span class="text-gray-400">Date of Birth:</span> <span class="font-bold text-gray-700" id="summary-dob">--</span></div>
+                  <div class="flex justify-between"><span class="text-gray-400">Social Category:</span> <span class="font-bold text-gray-700" id="summary-cat">--</span></div>
+                  <div class="flex justify-between"><span class="text-gray-400">Aadhaar UID:</span> <span class="font-bold text-gray-700 font-mono" id="summary-uid">--</span></div>
+                  <div class="flex justify-between"><span class="text-gray-400">Provisional Status:</span> <span class="font-bold text-gray-700" id="summary-prov">--</span></div>
+                </div>
+              </div>
+
+              <!-- Main Details Summary (Editable Cards) -->
+              <div class="lg:col-span-2 space-y-6">
+                <!-- Section 1 & 2: Stream & Personal info -->
+                <div class="border border-gray-100 rounded-2xl p-5 space-y-4">
+                  <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Stream &amp; Personal Family</h4>
+                    <button type="button" onclick="goToStep(1)" class="text-brand-600 hover:text-brand-700 text-xs font-bold inline-flex items-center gap-1 min-h-[44px]"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                  </div>
+                  <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                    <div><span class="text-gray-400 block">Name (Hindi):</span> <span class="font-bold text-gray-700" id="summary-name-hi">--</span></div>
+                    <div><span class="text-gray-400 block">Father's Name:</span> <span class="font-bold text-gray-700" id="summary-father">--</span></div>
+                    <div><span class="text-gray-400 block">Mother's Name:</span> <span class="font-bold text-gray-700" id="summary-mother">--</span></div>
+                    <div><span class="text-gray-400 block">Annual Income:</span> <span class="font-bold text-gray-700" id="summary-income">--</span></div>
+                    <div class="col-span-2"><span class="text-gray-400 block">Elective Subjects:</span> <span class="font-bold text-brand-600" id="summary-electives">--</span></div>
+                  </div>
+                </div>
+
+                <!-- Section 3: Address & Banking -->
+                <div class="border border-gray-100 rounded-2xl p-5 space-y-4">
+                  <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Address &amp; Banking</h4>
+                    <button type="button" onclick="goToStep(3)" class="text-brand-600 hover:text-brand-700 text-xs font-bold inline-flex items-center gap-1 min-h-[44px]"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                  </div>
+                  <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                    <div class="col-span-2"><span class="text-gray-400 block">Village/Street:</span> <span class="font-bold text-gray-700" id="summary-address">--</span></div>
+                    <div><span class="text-gray-400 block">Bank Acc:</span> <span class="font-bold text-gray-700 font-mono" id="summary-bank-acc">--</span></div>
+                    <div><span class="text-gray-400 block">Bank IFSC:</span> <span class="font-bold text-gray-700 font-mono" id="summary-bank-ifsc">--</span></div>
+                  </div>
+                </div>
+
+                <!-- Section 4: Academic Records Summary -->
+                <div class="border border-gray-100 rounded-2xl p-5 space-y-4">
+                  <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Academic Merit</h4>
+                    <button type="button" onclick="goToStep(4)" class="text-brand-600 hover:text-brand-700 text-xs font-bold inline-flex items-center gap-1 min-h-[44px]"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                  </div>
+                  <div id="summary-academic-block" class="space-y-2">
+                    <!-- Dynamic rendering of academic table records -->
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </form>
+
+    <!-- Navigation Control Actions -->
+    <div class="mt-8 flex justify-between items-center bg-white rounded-2xl border border-brand-100 p-4 shadow-sm" id="nav-controls">
+      <button type="button" id="prev-btn" onclick="navigateStep(-1)" class="bg-gray-100 hover:bg-gray-200 text-neutral-900 font-bold text-xs sm:text-sm px-6 py-3 rounded-xl transition-all duration-150 inline-flex items-center gap-2 opacity-50 cursor-not-allowed min-h-[44px]" disabled>
+        <i class="fa-solid fa-arrow-left"></i> Back
+      </button>
+      <button type="button" id="next-btn" onclick="navigateStep(1)" class="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-md transition-all duration-150 inline-flex items-center gap-2 min-h-[44px]">
+        Next Step <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Footer Info -->
+  <footer class="bg-neutral-900 text-gray-400 py-6 px-6 border-t border-neutral-800 text-center text-xs">
+    <div class="max-w-7xl mx-auto space-y-2">
+      <p>© 2024 Greenwood Senior Secondary School Admission Committee. All rights reserved.</p>
+      <p class="text-gray-600">This form adheres strictly to state regulations and regional compliance criteria for intermediate education portal systems.</p>
+    </div>
+  </footer>
+
+  <!-- Embedded Logic for Multi-Step Form Execution -->
+  <script>
+    // State definitions
+    let currentStep = 1;
+    const totalSteps = 6;
+    let photoUploadedDataUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256";
+
+    // Dynamic stream electives mapping
+    const streamElectives = {
+      Science: [
+        { id: "sci-phy", name: "Physics", checked: true, compulsory: true },
+        { id: "sci-chem", name: "Chemistry", checked: true, compulsory: true },
+        { id: "sci-math", name: "Mathematics", checked: false, compulsory: false },
+        { id: "sci-bio", name: "Biology", checked: false, compulsory: false },
+        { id: "sci-cs", name: "Computer Science", checked: false, compulsory: false }
+      ],
+      Commerce: [
+        { id: "com-acc", name: "Accountancy", checked: true, compulsory: true },
+        { id: "com-bst", name: "Business Studies", checked: true, compulsory: true },
+        { id: "com-eco", name: "Economics", checked: false, compulsory: false },
+        { id: "com-math", name: "Mathematics", checked: false, compulsory: false },
+        { id: "com-ip", name: "Informatics Practices", checked: false, compulsory: false }
+      ],
+      Arts: [
+        { id: "art-hist", name: "History", checked: true, compulsory: true },
+        { id: "art-pol", name: "Political Science", checked: true, compulsory: true },
+        { id: "art-geo", name: "Geography", checked: false, compulsory: false },
+        { id: "art-soc", name: "Sociology", checked: false, compulsory: false },
+        { id: "art-eco", name: "Economics", checked: false, compulsory: false }
+      ]
+    };
+
+    // Initial load configurations
+    window.addEventListener("DOMContentLoaded", () => {
+      handleStreamChange();
+    });
+
+    // Handle Elective Subjects Generation based on Stream
+    function handleStreamChange() {
+      const selectedStream = document.querySelector('input[name="stream"]:checked').value;
+      const container = document.getElementById("electives-container");
+      container.innerHTML = "";
+
+      const electives = streamElectives[selectedStream];
+      electives.forEach(sub => {
+        const div = document.createElement("div");
+        div.className = "flex items-center justify-between p-2 bg-white border border-gray-100 rounded-lg";
+        div.innerHTML = `
+          <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-gray-700">
+            <input type="checkbox" name="electives" value="${sub.name}" ${sub.checked ? 'checked' : ''} ${sub.compulsory ? 'disabled' : ''} class="text-brand-500 rounded border-gray-300">
+            <span>${sub.name}</span>
+          </label>
+          ${sub.compulsory ? '<span class="text-[9px] font-bold text-gray-400 uppercase">Compulsory</span>' : ''}
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Toggle Provisional Class Roll Number input field
+    function toggleProvisionalField() {
+      const isChecked = document.getElementById("provisional-toggle").checked;
+      const targetContainer = document.getElementById("provisional-input-container");
+      const labelText = document.getElementById("provisional-label");
+      
+      if (isChecked) {
+        targetContainer.classList.remove("hidden");
+        labelText.textContent = "Provisional";
+      } else {
+        targetContainer.classList.add("hidden");
+        labelText.textContent = "Regular";
+      }
+    }
+
+    // Handle student Photo preview on local uploading
+    function previewPhoto(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.getElementById("photo-preview");
+          const placeholder = document.getElementById("upload-placeholder");
+          img.src = e.target.result;
+          img.classList.remove("hidden");
+          placeholder.classList.add("hidden");
+          photoUploadedDataUrl = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Add row helper for academic table (Step 4)
+    function addAcademicRow() {
+      const container = document.getElementById("academic-rows-container");
+      const tr = document.createElement("tr");
+      tr.className = "border-b border-white bg-white hover:bg-brand-50/10 transition-colors";
+      tr.innerHTML = `
+        <td class="py-3 px-2">
+          <select class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:ring-1 focus:ring-brand-500 row-exam-name">
+            <option value="Matriculation/10th">Matric / 10th</option>
+            <option value="11th Class">11th Class</option>
+          </select>
+        </td>
+        <td class="py-3 px-2">
+          <input type="text" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center row-passing-year" placeholder="YYYY" maxlength="4" oninput="this.value = this.value.replace(/\\D/g, '')">
+        </td>
+        <td class="py-3 px-2">
+          <input type="text" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs row-school" placeholder="School Name">
+        </td>
+        <td class="py-3 px-2">
+          <input type="text" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs row-board" placeholder="Ex: CBSE/HPBOSE">
+        </td>
+        <td class="py-3 px-2">
+          <input type="text" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center row-roll" placeholder="Roll No">
+        </td>
+        <td class="py-3 px-2">
+          <select class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs row-result">
+            <option value="Pass">Pass</option>
+            <option value="Awaited">Awaited</option>
+          </select>
+        </td>
+        <td class="py-3 px-2">
+          <input type="number" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center row-max-marks" placeholder="Max" oninput="calculateRowPercentage(this)">
+        </td>
+        <td class="py-3 px-2">
+          <input type="number" class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center row-marks-obtained" placeholder="Marks" oninput="calculateRowPercentage(this)">
+        </td>
+        <td class="py-3 px-2">
+          <input type="text" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-center font-bold text-brand-600 row-percent" placeholder="%" readonly>
+        </td>
+        <td class="py-3 px-2 text-center">
+          <button type="button" class="text-gray-300 hover:text-red-500 transition-colors p-1" onclick="removeAcademicRow(this)">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </td>
+      `;
+      container.appendChild(tr);
+    }
+
+    // Remove row helper for academic table
+    function removeAcademicRow(button) {
+      const row = button.closest("tr");
+      if (document.querySelectorAll("#academic-rows-container tr").length > 1) {
+        row.remove();
+      } else {
+        alert("At least one primary academic history row is required.");
+      }
+    }
+
+    // Auto-calculating aggregate percentages dynamically
+    function calculateRowPercentage(input) {
+      const row = input.closest("tr");
+      const maxMarks = parseFloat(row.querySelector(".row-max-marks").value) || 0;
+      const marksObt = parseFloat(row.querySelector(".row-marks-obtained").value) || 0;
+      const percentInput = row.querySelector(".row-percent");
+
+      if (maxMarks > 0 && marksObt >= 0) {
+        if (marksObt > maxMarks) {
+          percentInput.value = "Err";
+          return;
+        }
+        const calculated = ((marksObt / maxMarks) * 100).toFixed(2);
+        percentInput.value = calculated + "%";
+      } else {
+        percentInput.value = "";
+      }
+    }
+
+    // Validate fields inside active step
+    function validateCurrentStep() {
+      const errors = [];
+      
+      if (currentStep === 1) {
+        const checkedStream = document.querySelector('input[name="stream"]:checked');
+        if (!checkedStream) errors.push("Selection of Stream is mandatory.");
+        
+        const provToggle = document.getElementById("provisional-toggle").checked;
+        if (provToggle) {
+          const provRoll = document.getElementById("provisional-roll-no").value.trim();
+          if (!provRoll) errors.push("Please supply your Provisional Roll Number.");
+        }
+      }
+
+      if (currentStep === 2) {
+        const stdEn = document.getElementById("student-name-en").value.trim();
+        const stdHi = document.getElementById("student-name-hi").value.trim();
+        const dob = document.getElementById("student-dob").value;
+        const aadhaar = document.getElementById("student-aadhaar").value.trim();
+        const father = document.getElementById("father-name").value.trim();
+        const fatherMobile = document.getElementById("father-mobile").value.trim();
+        const mother = document.getElementById("mother-name").value.trim();
+        const motherMobile = document.getElementById("mother-mobile").value.trim();
+        const category = document.getElementById("category").value;
+        const income = document.getElementById("annual-income").value.trim();
+
+        if (!stdEn) errors.push("Student Name (English) is required.");
+        if (!stdHi) errors.push("Student Name (Hindi) is required.");
+        if (!dob) errors.push("Student Date of Birth is required.");
+        if (aadhaar.length !== 12) errors.push("Student Aadhaar must be exactly 12 digits.");
+        if (!father) errors.push("Father's Name is required.");
+        if (fatherMobile.length !== 10) errors.push("Father's 10-digit Mobile is required.");
+        if (!mother) errors.push("Mother's Name is required.");
+        if (motherMobile.length !== 10) errors.push("Mother's 10-digit Mobile is required.");
+        if (!category) errors.push("Please select your Social Category.");
+        if (!income) errors.push("Please enter Annual Household Income.");
+      }
+
+      if (currentStep === 3) {
+        const village = document.getElementById("addr-village").value.trim();
+        const po = document.getElementById("addr-po").value.trim();
+        const tehsil = document.getElementById("addr-tehsil").value.trim();
+        const district = document.getElementById("addr-district").value.trim();
+        const pin = document.getElementById("addr-pin").value.trim();
+        const bankAcc = document.getElementById("bank-acc-no").value.trim();
+        const bankAccConf = document.getElementById("bank-acc-no-confirm").value.trim();
+        const bankName = document.getElementById("bank-name-branch").value.trim();
+        const bankIFSC = document.getElementById("bank-ifsc").value.trim();
+
+        if (!village) errors.push("Village/Street Address is required.");
+        if (!po) errors.push("Post Office details are required.");
+        if (!tehsil) errors.push("Tehsil is required.");
+        if (!district) errors.push("District is required.");
+        if (pin.length !== 6) errors.push("Pin Code must be 6 digits.");
+        if (!bankAcc) errors.push("Bank Account number is required.");
+        if (bankAcc !== bankAccConf) errors.push("Bank Account Number and Confirm Account Number must match.");
+        if (!bankName) errors.push("Bank Name & Branch details are required.");
+        if (bankIFSC.length !== 11) errors.push("Standard 11-digit bank IFSC Code is mandatory.");
+      }
+
+      if (currentStep === 4) {
+        const rows = document.querySelectorAll("#academic-rows-container tr");
+        rows.forEach((row, idx) => {
+          const year = row.querySelector(".row-passing-year").value.trim();
+          const school = row.querySelector(".row-school").value.trim();
+          const board = row.querySelector(".row-board").value.trim();
+          const roll = row.querySelector(".row-roll").value.trim();
+          const max = row.querySelector(".row-max-marks").value.trim();
+          const obt = row.querySelector(".row-marks-obtained").value.trim();
+
+          if (!year || !school || !board || !roll || !max || !obt) {
+            errors.push(`Academic Row #${idx+1} contains empty inputs. Please fill out or remove row.`);
+          }
+        });
+      }
+
+      if (currentStep === 5) {
+        const termsChecked = document.getElementById("terms-accept").checked;
+        const signStudent = document.getElementById("signature-student").value.trim();
+        const signParent = document.getElementById("signature-parent").value.trim();
+
+        if (!termsChecked) errors.push("You must read and agree to all rules & guidelines declaration.");
+        if (!signStudent) errors.push("E-Signature verification of student is required.");
+        if (!signParent) errors.push("E-Signature verification of parent/guardian is required.");
+      }
+
+      return errors;
+    }
+
+    // Trigger visual validation messages
+    function showErrors(errors) {
+      const alertBox = document.getElementById("validation-alert");
+      const list = document.getElementById("validation-errors-list");
+      list.innerHTML = "";
+      
+      errors.forEach(err => {
+        const li = document.createElement("li");
+        li.textContent = err;
+        list.appendChild(li);
+      });
+      
+      alertBox.classList.remove("hidden");
+      // Scroll to top of form to view errors
+      document.getElementById("validation-alert").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function clearErrors() {
+      document.getElementById("validation-alert").classList.add("hidden");
+    }
+
+    // Direct jump to step using top progress bar
+    function goToStep(target) {
+      // Allow moving backwards freely, validate when skipping forward
+      if (target < currentStep) {
+        goToStepDirect(target);
+      } else if (target > currentStep) {
+        let isValid = true;
+        let originalStep = currentStep;
+        
+        // Loop through steps sequentially and validate to prevent skipping unchecked fields
+        for (let s = currentStep; s < target; s++) {
+          currentStep = s;
+          const errors = validateCurrentStep();
+          if (errors.length > 0) {
+            showErrors(errors);
+            isValid = false;
+            break;
+          }
+        }
+        
+        if (isValid) {
+          clearErrors();
+          goToStepDirect(target);
+        } else {
+          currentStep = originalStep; // revert
+        }
+      }
+    }
+
+    function goToStepDirect(target) {
+      clearErrors();
+      // Hide current step panel
+      document.getElementById(`step-panel-${currentStep}`).classList.add("hidden");
+      
+      // Update step index
+      currentStep = target;
+      
+      // Show next step panel
+      document.getElementById(`step-panel-${currentStep}`).classList.remove("hidden");
+      
+      // Update HUD tracker
+      updateStepperHUD();
+    }
+
+    // Handle normal navigation flow
+    function navigateStep(direction) {
+      if (direction === 1) {
+        const errors = validateCurrentStep();
+        if (errors.length > 0) {
+          showErrors(errors);
+          return;
+        }
+        clearErrors();
+
+        if (currentStep === 5) {
+          // Process & generate summary for Step 6 before shifting
+          generateFinalSummary();
+        }
+
+        if (currentStep < totalSteps) {
+          document.getElementById(`step-panel-${currentStep}`).classList.add("hidden");
+          currentStep += 1;
+          document.getElementById(`step-panel-${currentStep}`).classList.remove("hidden");
+        } else if (currentStep === totalSteps) {
+          // Submit action on last step
+          processFinalSubmission();
+        }
+      } else {
+        // Back navigation
+        clearErrors();
+        if (currentStep > 1) {
+          document.getElementById(`step-panel-${currentStep}`).classList.add("hidden");
+          currentStep -= 1;
+          document.getElementById(`step-panel-${currentStep}`).classList.remove("hidden");
+        }
+      }
+      
+      updateStepperHUD();
+    }
+
+    // Render detailed visual information on Step 6 Summary State
+    function generateFinalSummary() {
+      // Primary overview properties
+      document.getElementById("summary-photo").src = photoUploadedDataUrl;
+      
+      const stdName = document.getElementById("student-name-en").value;
+      const targetClass = document.querySelector('input[name="target_class"]:checked').value;
+      const targetStream = document.querySelector('input[name="stream"]:checked').value;
+      
+      document.getElementById("summary-full-name").innerText = stdName || "STUDENT NAME";
+      document.getElementById("summary-applied-class-stream").innerText = `Class ${targetClass} - ${targetStream}`;
+      
+      document.getElementById("summary-dob").innerText = document.getElementById("student-dob").value || "--";
+      document.getElementById("summary-cat").innerText = document.getElementById("category").value || "--";
+      document.getElementById("summary-uid").innerText = document.getElementById("student-aadhaar").value || "--";
+      
+      const isProv = document.getElementById("provisional-toggle").checked;
+      document.getElementById("summary-prov").innerText = isProv ? "Provisional Status Applied" : "Regular";
+      
+      // Secondary block summary
+      document.getElementById("summary-name-hi").innerText = document.getElementById("student-name-hi").value || "--";
+      document.getElementById("summary-father").innerText = document.getElementById("father-name").value || "--";
+      document.getElementById("summary-mother").innerText = document.getElementById("mother-name").value || "--";
+      document.getElementById("summary-income").innerText = "₹" + (document.getElementById("annual-income").value || "--");
+      
+      // Select All Checked Elective Electives
+      const electivesList = [];
+      document.querySelectorAll('input[name="electives"]:checked').forEach(checkbox => {
+        electivesList.push(checkbox.value);
+      });
+      document.getElementById("summary-electives").innerText = electivesList.join(", ") || "None selected";
+      
+      // Address Block
+      const village = document.getElementById("addr-village").value;
+      const district = document.getElementById("addr-district").value;
+      const state = document.getElementById("addr-state").value;
+      const pin = document.getElementById("addr-pin").value;
+      document.getElementById("summary-address").innerText = `${village}, Dist: ${district}, ${state} - PIN: ${pin}`;
+      
+      // Banking Block
+      document.getElementById("summary-bank-acc").innerText = document.getElementById("bank-acc-no").value || "--";
+      document.getElementById("summary-bank-ifsc").innerText = document.getElementById("bank-ifsc").value || "--";
+      
+      // Dynamic rendering of academic table entries
+      const academicRowsBlock = document.getElementById("summary-academic-block");
+      academicRowsBlock.innerHTML = "";
+      
+      const trList = document.querySelectorAll("#academic-rows-container tr");
+      trList.forEach((row, index) => {
+        const exam = row.querySelector(".row-exam-name").value;
+        const year = row.querySelector(".row-passing-year").value;
+        const school = row.querySelector(".row-school").value;
+        const percent = row.querySelector(".row-percent").value;
+        
+        const card = document.createElement("div");
+        card.className = "p-3 bg-brand-50/20 border border-brand-100 rounded-xl flex justify-between items-center text-xs";
+        card.innerHTML = `
+          <div>
+            <span class="font-bold text-gray-800 block">${exam} (${year})</span>
+            <p class="text-[10px] text-gray-400">${school}</p>
+          </div>
+          <span class="font-black text-brand-600 bg-white border border-brand-200 px-2.5 py-1 rounded-lg">${percent || 'Pass'}</span>
+        `;
+        academicRowsBlock.appendChild(card);
+      });
+    }
+
+    // Handles final system database storage simulation
+    function processFinalSubmission() {
+      // Perform complete check one final time
+      const errors = validateCurrentStep();
+      if (errors.length > 0) {
+        showErrors(errors);
+        return;
+      }
+
+      // Successful registration visual state shift
+      document.getElementById("summary-container").classList.add("hidden");
+      document.getElementById("success-state").classList.remove("hidden");
+      document.getElementById("nav-controls").classList.add("hidden");
+    }
+
+    // Helper to reset and clear state
+    function resetForm() {
+      document.getElementById("admission-form").reset();
+      photoUploadedDataUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256";
+      document.getElementById("photo-preview").classList.add("hidden");
+      document.getElementById("upload-placeholder").classList.remove("hidden");
+      
+      document.getElementById("success-state").classList.add("hidden");
+      document.getElementById("summary-container").classList.remove("hidden");
+      document.getElementById("nav-controls").classList.remove("hidden");
+      
+      goToStepDirect(1);
+    }
+
+    // Update layout tracker UI elements
+    function updateStepperHUD() {
+      // 1. Calculate and update progress line
+      const activePercent = ((currentStep - 1) / (totalSteps - 1)) * 100;
+      const desktopLine = document.getElementById("progress-bar-line");
+      if (desktopLine) desktopLine.style.width = `${activePercent}%`;
+
+      // 2. Update desktop circular step numbers style states
+      for (let i = 1; i <= totalSteps; i++) {
+        const circle = document.getElementById(`step-circle-${i}`);
+        const label = document.getElementById(`step-label-${i}`);
+        
+        if (circle && label) {
+          if (i === currentStep) {
+            circle.className = "step-num w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-brand-500 text-white shadow-md border-4 border-white transition-all duration-200";
+            label.className = "text-xs font-bold mt-2 text-brand-700";
+          } else if (i < currentStep) {
+            circle.className = "step-num w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-brand-100 text-brand-700 border-4 border-white transition-all duration-200";
+            label.className = "text-xs font-medium mt-2 text-brand-600";
+          } else {
+            circle.className = "step-num w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-gray-200 text-gray-500 border-4 border-white transition-all duration-200";
+            label.className = "text-xs font-medium mt-2 text-gray-400";
+          }
+        }
+      }
+
+      // 3. Update Mobile Stepper text headers
+      const mobileTitles = [
+        "Stream & Class Selection",
+        "Personal Information",
+        "Address & Banking",
+        "Academic Record History",
+        "Required Document List",
+        "Review Application Summary"
+      ];
+      
+      const mobilePrefix = document.getElementById("mobile-step-prefix");
+      const mobileTitle = document.getElementById("mobile-step-title");
+      const mobilePercent = document.getElementById("mobile-step-percent");
+      const mobileLineBar = document.getElementById("progress-bar-mobile");
+
+      if (mobilePrefix) mobilePrefix.innerText = `Step ${currentStep} of ${totalSteps}`;
+      if (mobileTitle) mobileTitle.innerText = mobileTitles[currentStep - 1];
+      
+      const dynamicPercentage = Math.round((currentStep / totalSteps) * 100);
+      if (mobilePercent) mobilePercent.innerText = `${dynamicPercentage}%`;
+      if (mobileLineBar) mobileLineBar.style.width = `${dynamicPercentage}%`;
+
+      // 4. Update Navigation Buttons
+      const prevBtn = document.getElementById("prev-btn");
+      const nextBtn = document.getElementById("next-btn");
+
+      if (currentStep === 1) {
+        prevBtn.disabled = true;
+        prevBtn.classList.add("opacity-50", "cursor-not-allowed");
+      } else {
+        prevBtn.disabled = false;
+        prevBtn.classList.remove("opacity-50", "cursor-not-allowed");
+      }
+
+      if (currentStep === totalSteps) {
+        nextBtn.innerHTML = `Complete Submission <i class="fa-solid fa-cloud-arrow-up"></i>`;
+        nextBtn.classList.remove("bg-brand-500", "hover:bg-brand-600");
+        nextBtn.classList.add("bg-green-600", "hover:bg-green-700");
+      } else {
+        nextBtn.innerHTML = `Next Step <i class="fa-solid fa-arrow-right"></i>`;
+        nextBtn.classList.remove("bg-green-600", "hover:bg-green-700");
+        nextBtn.classList.add("bg-brand-500", "hover:bg-brand-600");
+      }
+
+      // Scroll smoothly back to top on transitions
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

@@ -553,7 +553,7 @@
                                     <button onclick="navigate('admin')" class="hidden sm:flex px-5 py-2.5 rounded-lg text-sm font-semibold border transition-colors ${currentPage.startsWith('admin') ? 'text-primary border-red-200 bg-red-50' : 'text-navyLight border-gray-200 bg-white hover:text-primary hover:bg-red-50 hover:border-red-100'}">
                                         Admin
                                     </button>
-                                    <button onclick="navigate('admissions')" class="hidden sm:flex btn-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold">
+                                    <button onclick="loadAdmissionPortal()" class="hidden sm:flex btn-primary text-white px-5 py-2.5 rounded-lg text-sm font-semibold">
                                         Apply Now
                                     </button>
                                 `}
@@ -576,7 +576,7 @@
                                 <button onclick="navigate('admin')" class="block w-full text-left px-4 py-3 text-base ${currentPage.startsWith('admin') ? 'text-primary bg-red-50' : 'text-navyLight'} hover:text-primary hover:bg-red-50 rounded-lg transition-colors">
                                     Admin
                                 </button>
-                                <button onclick="navigate('admissions')" class="w-full mt-4 btn-primary text-white px-5 py-3 rounded-lg text-sm font-semibold">
+                                <button onclick="loadAdmissionPortal()" class="w-full mt-4 btn-primary text-white px-5 py-3 rounded-lg text-sm font-semibold">
                                     Apply Now
                                 </button>
                             </div>
@@ -2721,6 +2721,9 @@
 
         function loadErpPortal() {
             window.location.href = 'erp.html';
+        }
+        function loadAdmissionPortal() {
+            window.location.href = 'admissions.html';
         }
 
         function toggleMobileMenu() {
